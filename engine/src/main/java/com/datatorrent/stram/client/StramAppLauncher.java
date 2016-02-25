@@ -413,6 +413,7 @@ public class StramAppLauncher
 
     // we have the classpath dependencies, scan for java configurations
     findAppConfigClasses(classFileNames);
+    appResourceList.clear();
 
   }
 

@@ -2295,8 +2295,7 @@ public class LogicalPlan implements Serializable, DAG
         }
       }
     }
-    ctx.path.pop();
-
+    OperatorMeta opMeta = ctx.path.pop();
   }
 
   public void findInvalidDelays(OperatorMeta om, List<List<String>> invalidDelays, Stack<OperatorMeta> stack)

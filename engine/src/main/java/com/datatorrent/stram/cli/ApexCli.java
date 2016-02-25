@@ -96,7 +96,8 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.stram.StramClient;
-import com.datatorrent.stram.client.AppPackage;
+import com.datatorrent.stram.cli.ApexCli.CustomCommand;
+import com.datatorrent.stram.client.*;
 import com.datatorrent.stram.client.AppPackage.AppInfo;
 import com.datatorrent.stram.client.ConfigPackage;
 import com.datatorrent.stram.client.DTConfiguration;
@@ -1889,6 +1890,10 @@ public class ApexCli
               if (requiredAppPackageName != null) {
                 throw new CliException("Config package requires an app package name of \"" + requiredAppPackageName + "\"");
               }
+              launchAppPackage(ap, cp, commandLineInfo, reader);
+              return;
+            } finally {
+              IOUtils.closeQuietly(ap);
             }
 
             if (ap != null) {
@@ -3768,6 +3773,251 @@ public class ApexCli
       }
     }
 
+  }
+
+  public class CustomCommand implements Command
+  {
+    public AppFactory appFactory;
+
+    @Override
+    @SuppressWarnings("SleepWhileInLoop")
+    public void execute(String[] args, ConsoleReader reader) throws Exception
+    {
+      String[] newArgs = new String[args.length - 1];
+      System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+      LaunchCommandLineInfo commandLineInfo = getLaunchCommandLineInfo(newArgs);
+
+      if (commandLineInfo.configFile != null) {
+        commandLineInfo.configFile = expandFileName(commandLineInfo.configFile, true);
+      }
+
+      Configuration config;
+      String configFile = commandLineInfo.configFile;
+      try {
+        config = StramAppLauncher.getOverriddenConfig(StramClientUtils.addDTSiteResources(new Configuration()),
+                configFile, commandLineInfo.overrideProperties);
+        if (commandLineInfo.libjars != null) {
+          commandLineInfo.libjars = expandCommaSeparatedFiles(commandLineInfo.libjars);
+          if (commandLineInfo.libjars != null) {
+            config.set(StramAppLauncher.LIBJARS_CONF_KEY_NAME, commandLineInfo.libjars);
+          }
+        }
+        if (commandLineInfo.files != null) {
+          commandLineInfo.files = expandCommaSeparatedFiles(commandLineInfo.files);
+          if (commandLineInfo.files != null) {
+            config.set(StramAppLauncher.FILES_CONF_KEY_NAME, commandLineInfo.files);
+          }
+        }
+        if (commandLineInfo.archives != null) {
+          commandLineInfo.archives = expandCommaSeparatedFiles(commandLineInfo.archives);
+          if (commandLineInfo.archives != null) {
+            config.set(StramAppLauncher.ARCHIVES_CONF_KEY_NAME, commandLineInfo.archives);
+          }
+        }
+        if (commandLineInfo.origAppId != null) {
+          config.set(StramAppLauncher.ORIGINAL_APP_ID, commandLineInfo.origAppId);
+        }
+        config.set(StramAppLauncher.QUEUE_NAME, commandLineInfo.queue != null ? commandLineInfo.queue : "default");
+      } catch (Exception ex) {
+        throw new CliException("Error opening the config XML file: " + configFile, ex);
+      }
+      String fileName = expandFileName(commandLineInfo.args[0], true);
+      StramAppLauncher submitApp;
+      String matchString = commandLineInfo.args.length >= 2 ? commandLineInfo.args[1] : null;
+
+      // see if it's an app package
+      AppPackage ap = null;
+      try {
+        ap = newAppPackageInstance(new File(fileName));
+      } catch (Exception ex) {
+        throw new RuntimeException("Exception in creating app package object from " + fileName);
+      }
+
+      if (ap != null) {
+        try {
+          if (!commandLineInfo.force) {
+            checkPlatformCompatible(ap);
+          }
+          System.out.println("Classpath: " + ap.getClassPath());
+//          new CustomCommand().execute(getLaunchAppPackageArgs(ap, null, commandLineInfo, reader), reader);
+//          launchAppPackage(ap, null, commandLineInfo, reader);
+//          return;
+        } finally {
+          IOUtils.closeQuietly(ap);
+        }
+      }
+      submitApp = getStramAppLauncher(fileName, config, commandLineInfo.ignorePom);
+      submitApp.loadDependencies();
+
+      if (commandLineInfo.origAppId != null) {
+        // ensure app is not running
+        ApplicationReport ar = null;
+        try {
+          ar = getApplication(commandLineInfo.origAppId);
+        } catch (Exception e) {
+          // application (no longer) in the RM history, does not prevent restart from state in DFS
+          LOG.debug("Cannot determine status of application {} {}", commandLineInfo.origAppId,
+                  ExceptionUtils.getMessage(e));
+        }
+        if (ar != null) {
+          if (ar.getFinalApplicationStatus() == FinalApplicationStatus.UNDEFINED) {
+            throw new CliException("Cannot relaunch non-terminated application: " + commandLineInfo.origAppId + " "
+                    + ar.getYarnApplicationState());
+          }
+          if (appFactory == null && matchString == null) {
+            // skip selection if we can match application name from previous run
+            List<AppFactory> matchingAppFactories = getMatchingAppFactories(submitApp, ar.getName(),
+                    commandLineInfo.exactMatch);
+            for (AppFactory af : matchingAppFactories) {
+              String appName = submitApp.getLogicalPlanConfiguration().getAppAlias(af.getName());
+              if (appName == null) {
+                appName = af.getName();
+              }
+              // limit to exact match
+              if (appName.equals(ar.getName())) {
+                appFactory = af;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (appFactory == null) {
+        List<AppFactory> matchingAppFactories = getMatchingAppFactories(submitApp, matchString,
+                commandLineInfo.exactMatch);
+        if (matchingAppFactories == null || matchingAppFactories.isEmpty()) {
+          throw new CliException("No applications matching \"" + matchString + "\" bundled in jar.");
+        } else if (matchingAppFactories.size() == 1) {
+          appFactory = matchingAppFactories.get(0);
+        } else if (matchingAppFactories.size() > 1) {
+
+          // Store the appNames sorted in alphabetical order and their position in matchingAppFactories list
+          TreeMap<String, Integer> appNamesInAlphabeticalOrder = new TreeMap<String, Integer>();
+          // Display matching applications
+          for (int i = 0; i < matchingAppFactories.size(); i++) {
+            String appName = matchingAppFactories.get(i).getName();
+            String appAlias = submitApp.getLogicalPlanConfiguration().getAppAlias(appName);
+            if (appAlias != null) {
+              appName = appAlias;
+            }
+            appNamesInAlphabeticalOrder.put(appName, i);
+          }
+
+          // Create a mapping between the app display number and original index at matchingAppFactories
+          int index = 1;
+          HashMap<Integer, Integer> displayIndexToOriginalUnsortedIndexMap = new HashMap<Integer, Integer>();
+          for (Map.Entry<String, Integer> entry : appNamesInAlphabeticalOrder.entrySet()) {
+            // Map display number of the app to original unsorted index
+            displayIndexToOriginalUnsortedIndexMap.put(index, entry.getValue());
+
+            // Display the app names
+            System.out.printf("%3d. %s\n", index++, entry.getKey());
+          }
+
+          // Exit if not in interactive mode
+          if (!consolePresent) {
+            throw new CliException("More than one application in jar file match '" + matchString + "'");
+          } else {
+
+            boolean useHistory = reader.isHistoryEnabled();
+            reader.setHistoryEnabled(false);
+            History previousHistory = reader.getHistory();
+            History dummyHistory = new MemoryHistory();
+            reader.setHistory(dummyHistory);
+            List<Completer> completers = new ArrayList<Completer>(reader.getCompleters());
+            for (Completer c : completers) {
+              reader.removeCompleter(c);
+            }
+            reader.setHandleUserInterrupt(true);
+            String optionLine;
+            try {
+              optionLine = reader.readLine("Choose application: ");
+            } finally {
+              reader.setHandleUserInterrupt(false);
+              reader.setHistoryEnabled(useHistory);
+              reader.setHistory(previousHistory);
+              for (Completer c : completers) {
+                reader.addCompleter(c);
+              }
+            }
+            try {
+              int option = Integer.parseInt(optionLine);
+              if (0 < option && option <= matchingAppFactories.size()) {
+                int appIndex = displayIndexToOriginalUnsortedIndexMap.get(option);
+                appFactory = matchingAppFactories.get(appIndex);
+              }
+            } catch (Exception ex) {
+              // ignore
+            }
+          }
+        }
+
+      }
+
+      if (appFactory != null) {
+        if (!commandLineInfo.localMode) {
+
+          // see whether there is an app with the same name and user name running
+          String appNameAttributeName = StreamingApplication.DT_PREFIX + Context.DAGContext.APPLICATION_NAME.getName();
+          String appName = config.get(appNameAttributeName, appFactory.getName());
+          ApplicationReport duplicateApp = StramClientUtils.getStartedAppInstanceByName(yarnClient, appName,
+                  UserGroupInformation.getLoginUser().getUserName(), null);
+          if (duplicateApp != null) {
+            throw new CliException("Application with the name \"" + duplicateApp.getName()
+                    + "\" already running under the current user \"" + duplicateApp.getUser()
+                    + "\". Please choose another name. You can change the name by setting " + appNameAttributeName);
+          }
+
+          // This is for suppressing System.out printouts from applications so that the user of CLI will not be confused
+          // by those printouts
+          PrintStream originalStream = suppressOutput();
+          ApplicationId appId = null;
+          try {
+            if (raw) {
+              PrintStream dummyStream = new PrintStream(new OutputStream()
+              {
+                @Override
+                public void write(int b)
+                {
+                  // no-op
+                }
+
+              });
+              System.setOut(dummyStream);
+            }
+            appId = submitApp.launchApp(appFactory);
+            currentApp = yarnClient.getApplicationReport(appId);
+          } finally {
+            restoreOutput(originalStream);
+          }
+          if (appId != null) {
+            printJson("{\"appId\": \"" + appId + "\"}");
+          }
+        } else {
+          submitApp.runLocal(appFactory);
+        }
+      } else {
+        System.err.println("No application specified.");
+      }
+    }
+
+    }
+
+  public static class ExternalHelper
+  {
+    public static void execute(String launchCommand, AppFactory appFactory) {
+      ApexCli dtcli = new ApexCli();
+      try {
+        dtcli.init();
+        CustomCommand cc = dtcli.new CustomCommand();
+        cc.appFactory = appFactory;
+        cc.execute(launchCommand.split(" "), null);
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Exception in dtcli init or execute in CustomCommand");
+      }
+    }
   }
 
   private enum AttributesType
