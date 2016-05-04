@@ -96,7 +96,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.stram.StramClient;
-import com.datatorrent.stram.client.*;
+import com.datatorrent.stram.client.AppPackage;
 import com.datatorrent.stram.client.AppPackage.AppInfo;
 import com.datatorrent.stram.client.ConfigPackage;
 import com.datatorrent.stram.client.DTConfiguration;
@@ -3776,7 +3776,8 @@ public class ApexCli
 
   public static class ExternalHelper
   {
-    public static void execute(String launchCommand) {
+    public static void execute(String launchCommand)
+    {
       ApexCli dtcli = new ApexCli();
       try {
         dtcli.init();
