@@ -1889,10 +1889,10 @@ public class ApexCli
               if (requiredAppPackageName != null) {
                 throw new CliException("Config package requires an app package name of \"" + requiredAppPackageName + "\"");
               }
-              launchAppPackage(ap, cp, commandLineInfo, reader);
-              return;
-            } finally {
-              IOUtils.closeQuietly(ap);
+//              launchAppPackage(ap, cp, commandLineInfo, reader);
+//              return;
+//            } finally {
+//              IOUtils.closeQuietly(ap);
             }
 
             if (ap != null) {
