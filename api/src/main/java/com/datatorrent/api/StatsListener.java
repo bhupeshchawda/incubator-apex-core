@@ -154,6 +154,11 @@ public interface StatsListener
      * @return Future object to check state of the request.
      */
     FutureTask<Object> submitDagChange(DAGChangeSet dagchanges) throws IOException, ClassNotFoundException;
+
+    int numOperatorsInDAG();
+
+    boolean operatorInactive();
+
   }
 
   /**

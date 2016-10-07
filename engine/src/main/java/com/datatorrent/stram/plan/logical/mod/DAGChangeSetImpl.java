@@ -18,6 +18,12 @@
  */
 package com.datatorrent.stram.plan.logical.mod;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,12 +31,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.io.input.ClassLoaderObjectInputStream;
+
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.DAGChangeSet;
+import com.datatorrent.api.DAG.OperatorMeta;
+import com.datatorrent.api.DAG.StreamMeta;
 import com.datatorrent.api.Operator;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
+import com.datatorrent.stram.plan.physical.PhysicalPlan;
 
 /**
  * An implementation for DAGChangeSet. Instance of this object will be provided
@@ -265,5 +276,44 @@ public class DAGChangeSetImpl extends LogicalPlan implements DAGChangeSet
       sm.addSink(port);
     }
     return sm;
+  }
+
+  public static void write(DAG dag, OutputStream os) throws IOException
+  {
+    ObjectOutputStream oos = new ObjectOutputStream(os);
+    oos.writeObject(dag);
+  }
+
+  public static DAGChangeSetImpl read(InputStream is) throws IOException, ClassNotFoundException
+  {
+    return (DAGChangeSetImpl)new ClassLoaderObjectInputStream(Thread.currentThread().getContextClassLoader(), is).readObject();
+  }
+
+  public DAGChangeSetImpl cloneDAG()
+  {
+    try {
+      DAGChangeSetImpl changeSet = new DAGChangeSetImpl();
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      DAGChangeSetImpl.write(this, bos);
+      bos.flush();
+      ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+      changeSet = (DAGChangeSetImpl) DAGChangeSetImpl.read(bis);
+      return changeSet;
+    } catch(IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public DAGChangeSet createUndeployDAG()
+  {
+    DAGChangeSetImpl changeSet = changeSet = cloneDAG();
+    for (LogicalPlan.StreamMeta stream : getAllStreams()) {
+      changeSet.removeStream(stream.getName());
+    }
+    for (LogicalPlan.OperatorMeta operator: getAllOperators()) {
+      changeSet.removeOperator(operator.getName());
+    }
+    return changeSet;
   }
 }

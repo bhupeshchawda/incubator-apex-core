@@ -294,5 +294,7 @@ public interface DAG extends DAGContext, Serializable
     StreamMeta extendStream(String id, Operator.InputPort... ports);
 
     StreamMeta addStream(String id, String operatorName, String portName, Operator.InputPort... ports);
+
+    DAGChangeSet createUndeployDAG();
   }
 }

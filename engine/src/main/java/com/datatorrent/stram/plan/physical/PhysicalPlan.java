@@ -55,6 +55,7 @@ import com.google.common.collect.Sets;
 import com.datatorrent.api.AffinityRule;
 import com.datatorrent.api.AffinityRule.Type;
 import com.datatorrent.api.AffinityRulesSet;
+import com.datatorrent.api.BatchControlOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
@@ -62,6 +63,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.DAGChangeSet;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Partitioner;
@@ -2033,6 +2035,31 @@ public class PhysicalPlan implements Serializable
         pendingDagChangeRequest = dagChanges;
         return ctx.addDagChangeRequests(dagChanges);
       }
+    }
+
+    @Override
+    public int numOperatorsInDAG()
+    {
+      return getAllOperators().size();
+    }
+
+    @Override
+    public boolean operatorInactive()
+    {
+      Map<Integer, PTOperator> operators = getAllOperators();
+      boolean inactive = false;
+      for (PTOperator op: operators.values()) {
+        if (op.operatorMeta.getOperator() instanceof InputOperator &&
+            !(op.operatorMeta.getOperator() instanceof BatchControlOperator)) {
+          if (op.stats.getTuplesEmittedPSMA() == 0) {
+            inactive = true;
+            break;
+          }
+        } else if (operators.size() <= 1) {
+          inactive = true;
+        }
+      }
+      return inactive;
     }
   }
 
