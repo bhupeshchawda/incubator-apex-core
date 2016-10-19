@@ -157,6 +157,8 @@ public interface StatsListener
 
     int numOperatorsInDAG();
 
+    int numLogicalOperatorsInDAG();
+
     boolean operatorInactive();
 
   }

@@ -1333,6 +1333,10 @@ public class PhysicalPlan implements Serializable
       // remove the operator
       removePTOperator(p);
     }
+    if (currentMapping.partitions.isEmpty()) {
+      p.getPlan().getLogicalPlan().removeOperator(p.getOperatorMeta().getOperator());
+      LOG.debug("Removing logical operator {}", p.getOperatorMeta().getName());
+    }
     // remove orphaned downstream operators
     for (PTOperator dop : downstreamOpers) {
       if (dop.inputs.isEmpty()) {
@@ -2041,6 +2045,12 @@ public class PhysicalPlan implements Serializable
     public int numOperatorsInDAG()
     {
       return getAllOperators().size();
+    }
+
+    @Override
+    public int numLogicalOperatorsInDAG()
+    {
+      return getLogicalPlan().getAllOperators().size();
     }
 
     @Override
