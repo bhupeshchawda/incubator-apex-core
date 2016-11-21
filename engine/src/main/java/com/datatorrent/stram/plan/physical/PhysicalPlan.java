@@ -812,7 +812,7 @@ public class PhysicalPlan implements Serializable
     // create operator instance per partition
     Map<Integer, Partition<Operator>> operatorIdToPartition = Maps.newHashMapWithExpectedSize(partitions.size());
     for (Partition<Operator> partition : partitions) {
-      PTOperator p = addPTOperator(m, partition, Checkpoint.INITIAL_CHECKPOINT);
+      PTOperator p = addPTOperator(m, partition, null);
       operatorIdToPartition.put(p.getId(), partition);
     }
 
@@ -1299,10 +1299,11 @@ public class PhysicalPlan implements Serializable
       Checkpoint activationCheckpoint = Checkpoint.INITIAL_CHECKPOINT;
       for (PTInput input : oper.inputs) {
         PTOperator sourceOper = input.source.source;
+        Checkpoint checkpoint = sourceOper.recoveryCheckpoint;
         if (sourceOper.checkpoints.isEmpty()) {
-          getActivationCheckpoint(sourceOper);
+          checkpoint = getActivationCheckpoint(sourceOper);
         }
-        activationCheckpoint = Checkpoint.max(activationCheckpoint, sourceOper.recoveryCheckpoint);
+        activationCheckpoint = Checkpoint.max(activationCheckpoint, checkpoint);
       }
       return activationCheckpoint;
     }
@@ -1333,9 +1334,10 @@ public class PhysicalPlan implements Serializable
       // remove the operator
       removePTOperator(p);
     }
-    if (currentMapping.partitions.isEmpty()) {
+    if ((currentMapping == null || currentMapping.partitions.size() == 0)
+        && p.getPlan().getLogicalPlan().getAllOperators().contains(p.getOperatorMeta())) {
+      LOG.info("Removing logical operator {}", p.getOperatorMeta().getName());
       p.getPlan().getLogicalPlan().removeOperator(p.getOperatorMeta().getOperator());
-      LOG.debug("Removing logical operator {}", p.getOperatorMeta().getName());
     }
     // remove orphaned downstream operators
     for (PTOperator dop : downstreamOpers) {
