@@ -109,4 +109,9 @@ public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
    */
   public abstract void process(T tuple);
 
+  /**
+   * <p>process control.</p>
+   */
+  public abstract void processControl(ControlTuple tuple);
+
 }

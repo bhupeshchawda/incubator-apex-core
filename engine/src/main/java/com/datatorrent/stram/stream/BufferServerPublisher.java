@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Publisher;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
+import com.datatorrent.bufferserver.packet.CustomControlTuple;
 import com.datatorrent.bufferserver.packet.DataTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
@@ -81,6 +82,8 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
     if (payload instanceof Tuple) {
       final Tuple t = (Tuple)payload;
 
+      System.out.println("Tuple payload: " + t.toString());
+
       switch (t.getType()) {
         case CHECKPOINT:
           if (statefulSerde != null) {
@@ -105,6 +108,11 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
         case RESET_WINDOW:
           com.datatorrent.stram.tuple.ResetWindowTuple rwt = (com.datatorrent.stram.tuple.ResetWindowTuple)t;
           array = ResetWindowTuple.getSerializedTuple(rwt.getBaseSeconds(), rwt.getIntervalMillis());
+          break;
+
+        case CUSTOM_CONTROL:
+          array = CustomControlTuple.getSerializedTuple((int)t.getWindowId());
+          System.out.println("Serialized Custom Control Tuple");
           break;
 
         default:

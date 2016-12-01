@@ -351,6 +351,10 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
               o = new Tuple(data.getType(), baseSeconds | data.getWindowId());
               break;
 
+            case CUSTOM_CONTROL:
+              o = processPayload(data);
+              break;
+
             default:
               throw new IllegalArgumentException("Unhandled Message Type " + data.getType());
           }

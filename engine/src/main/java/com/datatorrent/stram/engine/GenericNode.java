@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.UnhandledException;
 
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
@@ -249,6 +252,7 @@ public class GenericNode extends Node<Operator>
 
     TupleTracker tracker;
     LinkedList<TupleTracker> resetTupleTracker = new LinkedList<>();
+    LinkedHashMap<Long,ArrayList<Tuple>> customControlTuples = Maps.newLinkedHashMap();
     try {
       do {
         Iterator<Map.Entry<String, SweepableReservoir>> buffers = activeQueues.iterator();
@@ -359,6 +363,18 @@ public class GenericNode extends Node<Operator>
                     expectingBeginWindow = activeQueues.size();
                     break activequeue;
                   }
+                }
+                break;
+
+              case CUSTOM_CONTROL:
+                activePort.remove();
+                /* All custom control tuples are expected to be arriving in the current window only.*/
+                if (t.getWindowId() == currentWindowId) {
+                  if (! customControlTuples.containsKey(currentWindowId)) {
+                    customControlTuples.put(currentWindowId, new ArrayList<Tuple>());
+                  }
+                  List<Tuple> tuples = customControlTuples.get(currentWindowId);
+                  tuples.add(t);
                 }
                 break;
 
