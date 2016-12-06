@@ -59,6 +59,10 @@ public interface Sink<T>
       return 0;
     }
 
+    @Override
+    public void putControl(ControlTuple tuple)
+    {
+    }
   };
 
   /**
@@ -68,6 +72,7 @@ public interface Sink<T>
    */
   public void put(T tuple);
 
+  public void putControl(ControlTuple tuple);
   /**
    * Give the count of the tuples processed since the last reset.
    *
