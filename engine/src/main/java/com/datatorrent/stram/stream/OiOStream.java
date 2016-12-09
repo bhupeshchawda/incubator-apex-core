@@ -125,6 +125,12 @@ public class OiOStream implements Stream
     }
 
     @Override
+    public void putToSink(Object tuple)
+    {
+      OiOStream.this.sink.put(tuple);
+    }
+
+    @Override
     public Tuple sweep()
     {
       throw new UnsupportedOperationException("Not supported.");

@@ -169,6 +169,12 @@ public class InputNodeTest
     }
 
     @Override
+    public void putToSink(Object tuple)
+    {
+      oldSink.put(tuple);
+    }
+
+    @Override
     public Tuple sweep()
     {
       switch (currentState) {

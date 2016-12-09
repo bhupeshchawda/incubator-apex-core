@@ -113,6 +113,12 @@ public abstract class MuxReservoir
     }
 
     @Override
+    public void putToSink(Object tuple)
+    {
+      this.sink.put(tuple);
+    }
+
+    @Override
     public Tuple sweep()
     {
       final int size = size();

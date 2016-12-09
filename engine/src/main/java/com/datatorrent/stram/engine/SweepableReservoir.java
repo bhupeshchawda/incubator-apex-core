@@ -51,4 +51,5 @@ public interface SweepableReservoir extends Reservoir<Object>
    */
   int getCount(boolean reset);
 
+  void putToSink(Object tuple);
 }

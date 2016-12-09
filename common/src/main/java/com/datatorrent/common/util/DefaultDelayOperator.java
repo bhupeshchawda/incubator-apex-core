@@ -21,6 +21,7 @@ package com.datatorrent.common.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.datatorrent.api.CustomControlTuple;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
@@ -45,6 +46,11 @@ public class DefaultDelayOperator<T> extends BaseOperator implements Operator.De
     public void process(T tuple)
     {
       processTuple(tuple);
+    }
+
+    public void processControl(CustomControlTuple tuple)
+    {
+      processControl(tuple);
     }
   };
 

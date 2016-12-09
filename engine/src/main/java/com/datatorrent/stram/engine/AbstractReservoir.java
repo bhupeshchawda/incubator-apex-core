@@ -110,6 +110,12 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
   }
 
+  @Override
+  public void putToSink(Object tuple)
+  {
+    getSink().put(tuple);
+  }
+
   /**
    * {@inheritDoc}
    */

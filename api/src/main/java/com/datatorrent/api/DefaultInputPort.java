@@ -76,7 +76,11 @@ public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
   public void put(T tuple)
   {
     count++;
-    process(tuple);
+    if (tuple instanceof CustomControlTuple) {
+      processControl((CustomControlTuple)tuple);
+    } else {
+      process(tuple);
+    }
   }
 
   /** {@inheritDoc} */
@@ -109,4 +113,8 @@ public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
    */
   public abstract void process(T tuple);
 
+  public void processControl(CustomControlTuple tuple)
+  {
+    // Default Implementation
+  }
 }
