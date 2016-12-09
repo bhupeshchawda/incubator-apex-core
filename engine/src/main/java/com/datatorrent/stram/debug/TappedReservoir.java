@@ -51,6 +51,12 @@ public class TappedReservoir extends MuxSink implements SweepableReservoir
   }
 
   @Override
+  public void putToSink(Object tuple)
+  {
+    this.sink.put(tuple);
+  }
+
+  @Override
   public Tuple sweep()
   {
     return reservoir.sweep();

@@ -86,6 +86,12 @@ public class WindowIdActivatedReservoir implements SweepableReservoir
   }
 
   @Override
+  public void putToSink(Object tuple)
+  {
+    this.sink.put(tuple);
+  }
+
+  @Override
   public Tuple sweep()
   {
     Tuple t;

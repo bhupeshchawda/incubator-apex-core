@@ -71,6 +71,12 @@ public class ForwardingReservoir implements SweepableReservoir
   }
 
   @Override
+  public void putToSink(Object tuple)
+  {
+    reservoir.getSink().put(tuple);
+  }
+
+  @Override
   public Tuple sweep()
   {
     return reservoir.sweep();

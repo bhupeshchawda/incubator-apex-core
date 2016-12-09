@@ -268,6 +268,12 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
     }
 
     @Override
+    public void putToSink(Object tuple)
+    {
+      this.sink.put(tuple);
+    }
+
+    @Override
     public Tuple sweep()
     {
       final int size = size();
@@ -349,6 +355,10 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
 
             case BEGIN_WINDOW:
               o = new Tuple(data.getType(), baseSeconds | data.getWindowId());
+              break;
+
+            case CUSTOM_CONTROL:
+              o = processPayload(data);
               break;
 
             default:

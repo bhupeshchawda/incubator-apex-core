@@ -76,6 +76,9 @@ public abstract class Tuple
       case END_STREAM:
         return new WindowIdTuple(buffer, offset, length);
 
+      case CUSTOM_CONTROL:
+        return new ControlTuple(buffer, offset, length);
+
       case PUBLISHER_REQUEST:
         PublishRequestTuple prt = new PublishRequestTuple(buffer, offset, length);
         prt.parse();
