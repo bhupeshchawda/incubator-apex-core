@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Subscriber;
@@ -42,6 +44,7 @@ import com.datatorrent.stram.engine.SweepableReservoir;
 import com.datatorrent.stram.engine.WindowGenerator;
 import com.datatorrent.stram.plan.logical.StreamCodecWrapperForPersistance;
 import com.datatorrent.stram.tuple.CheckpointTuple;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.EndStreamTuple;
 import com.datatorrent.stram.tuple.EndWindowTuple;
 import com.datatorrent.stram.tuple.ResetWindowTuple;
@@ -268,14 +271,20 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
     }
 
     @Override
-    public Tuple sweep()
+    public void putToSink(Object tuple)
+    {
+      this.sink.put(tuple);
+    }
+
+    @Override
+    public ControlTuple sweep()
     {
       final int size = size();
       if (size > 0) {
         for (int i = 0; i < size; i++) {
-          if (peekUnsafe() instanceof Tuple) {
+          if (peekUnsafe() instanceof ControlTuple) {
             count += i;
-            return (Tuple)peekUnsafe();
+            return (ControlTuple)peekUnsafe();
           }
           sink.put(pollUnsafe());
         }
@@ -349,6 +358,10 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
 
             case BEGIN_WINDOW:
               o = new Tuple(data.getType(), baseSeconds | data.getWindowId());
+              break;
+
+            case CUSTOM_CONTROL:
+              o = new CustomControlTuple(processPayload(data));
               break;
 
             default:

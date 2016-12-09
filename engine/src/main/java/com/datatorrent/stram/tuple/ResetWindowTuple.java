@@ -18,7 +18,7 @@
  */
 package com.datatorrent.stram.tuple;
 
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 
 /**
  *

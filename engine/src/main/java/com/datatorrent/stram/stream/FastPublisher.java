@@ -35,7 +35,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.bufferserver.packet.PublishRequestTuple;
 import com.datatorrent.bufferserver.packet.ResetWindowTuple;
 import com.datatorrent.bufferserver.packet.WindowIdTuple;
@@ -308,7 +308,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
         assert (size <= Short.MAX_VALUE);
         writeBuffer.put(position++, (byte)size);
         writeBuffer.put(position++, (byte)(size >> 8));
-        writeBuffer.put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+        writeBuffer.put(position++, MessageType.PAYLOAD_VALUE);
         writeBuffer.put(position++, (byte)hashcode);
         writeBuffer.put(position++, (byte)(hashcode >> 8));
         writeBuffer.put(position++, (byte)(hashcode >> 16));
@@ -351,7 +351,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
             }
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position++, (byte)(hashcode >> 8));
             writeBuffers[wi].put(position++, (byte)(hashcode >> 16));
@@ -367,7 +367,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
             }
             position = 0;
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position++, (byte)(hashcode >> 8));
             writeBuffers[wi].put(position++, (byte)(hashcode >> 16));
@@ -383,7 +383,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
               wi++;
             }
             position = 0;
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position++, (byte)(hashcode >> 8));
             writeBuffers[wi].put(position++, (byte)(hashcode >> 16));
@@ -393,7 +393,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
           case BUFFER_CAPACITY - 3:
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position, MessageType.PAYLOAD_VALUE);
             if (wi == lastIndex) {
               wi = 0;
             } else {
@@ -409,7 +409,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
           case BUFFER_CAPACITY - 4:
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position, (byte)hashcode);
             if (wi == lastIndex) {
               wi = 0;
@@ -425,7 +425,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
           case BUFFER_CAPACITY - 5:
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position, (byte)(hashcode >> 8));
             if (wi == lastIndex) {
@@ -441,7 +441,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
           case BUFFER_CAPACITY - 6:
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position++, (byte)(hashcode >> 8));
             writeBuffers[wi].put(position, (byte)(hashcode >> 16));
@@ -457,7 +457,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
           default:
             writeBuffers[wi].put(position++, (byte)size);
             writeBuffers[wi].put(position++, (byte)(size >> 8));
-            writeBuffers[wi].put(position++, com.datatorrent.bufferserver.packet.MessageType.PAYLOAD_VALUE);
+            writeBuffers[wi].put(position++, MessageType.PAYLOAD_VALUE);
             writeBuffers[wi].put(position++, (byte)hashcode);
             writeBuffers[wi].put(position++, (byte)(hashcode >> 8));
             writeBuffers[wi].put(position++, (byte)(hashcode >> 16));

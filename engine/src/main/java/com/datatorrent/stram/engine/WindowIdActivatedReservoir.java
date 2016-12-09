@@ -22,8 +22,10 @@ package com.datatorrent.stram.engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.api.Sink;
-import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.stram.tuple.EndStreamTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
@@ -86,13 +88,21 @@ public class WindowIdActivatedReservoir implements SweepableReservoir
   }
 
   @Override
-  public Tuple sweep()
+  public void putToSink(Object tuple)
   {
-    Tuple t;
+    this.sink.put(tuple);
+  }
+
+  @Override
+  public ControlTuple sweep()
+  {
+    ControlTuple t;
     while ((t = reservoir.sweep()) != null) {
-      if (t.getType() == MessageType.BEGIN_WINDOW && t.getWindowId() > windowId) {
-        reservoir.setSink(sink);
-        return (est = new EndStreamTuple(windowId));
+      if (t instanceof Tuple) {
+        if (t.getType() == MessageType.BEGIN_WINDOW && ((Tuple)t).getWindowId() > windowId) {
+          reservoir.setSink(sink);
+          return (est = new EndStreamTuple(windowId));
+        }
       }
       reservoir.remove();
     }

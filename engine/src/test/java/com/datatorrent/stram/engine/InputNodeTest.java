@@ -27,6 +27,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+import org.apache.apex.api.MessageType;
+
 import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
@@ -36,7 +39,6 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.api.Sink;
-import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.stram.engine.GenericNodeTest.FSTestWatcher;
 import com.datatorrent.stram.engine.GenericNodeTest.GenericCheckpointOperator;
 import com.datatorrent.stram.tuple.EndWindowTuple;
@@ -169,7 +171,13 @@ public class InputNodeTest
     }
 
     @Override
-    public Tuple sweep()
+    public void putToSink(Object tuple)
+    {
+      oldSink.put(tuple);
+    }
+
+    @Override
+    public ControlTuple sweep()
     {
       switch (currentState) {
         case RESET_WINDOW_NO_TUPLE: {

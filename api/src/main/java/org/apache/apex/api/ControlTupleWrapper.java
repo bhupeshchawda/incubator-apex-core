@@ -16,22 +16,44 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.datatorrent.stram.tuple;
+package org.apache.apex.api;
 
-import org.apache.apex.api.MessageType;
+import java.util.UUID;
 
-/**
- * <p>CodecStateTuple class.</p>
- *
- * @since 0.3.2
- */
-public class CodecStateTuple extends Tuple
+import org.apache.hadoop.classification.InterfaceStability;
+
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+
+@InterfaceStability.Evolving
+public final class ControlTupleWrapper<C> implements ControlTuple
 {
-  public final byte[] state;
+  private C object;
+  @com.esotericsoftware.kryo.serializers.FieldSerializer.Bind(JavaSerializer.class)
+  private UUID id;
 
-  public CodecStateTuple(long windowId, byte[] state)
+  public ControlTupleWrapper()
   {
-    super(MessageType.CODEC_STATE, windowId);
-    this.state = state;
+  }
+
+  public ControlTupleWrapper(C object)
+  {
+    this.object = object;
+    id = UUID.randomUUID();
+  }
+
+  public C getPayload()
+  {
+    return object;
+  }
+
+  public UUID getId()
+  {
+    return id;
+  }
+
+  @Override
+  public MessageType getType()
+  {
+    return MessageType.CUSTOM_CONTROL;
   }
 }

@@ -18,9 +18,10 @@
  */
 package com.datatorrent.stram.debug;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.engine.SweepableReservoir;
-import com.datatorrent.stram.tuple.Tuple;
 
 /**
  * <p>TappedReservoir class.</p>
@@ -51,7 +52,13 @@ public class TappedReservoir extends MuxSink implements SweepableReservoir
   }
 
   @Override
-  public Tuple sweep()
+  public void putToSink(Object tuple)
+  {
+    this.sink.put(tuple);
+  }
+
+  @Override
+  public ControlTuple sweep()
   {
     return reservoir.sweep();
   }

@@ -54,7 +54,7 @@ import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.bufferserver.packet.PayloadTuple;
 import com.datatorrent.bufferserver.server.Server;
 import com.datatorrent.common.util.AsyncFSStorageAgent;

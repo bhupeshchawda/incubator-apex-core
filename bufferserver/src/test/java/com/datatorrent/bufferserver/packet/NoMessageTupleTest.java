@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import org.testng.annotations.Test;
 
+import org.apache.apex.api.MessageType;
 
 /**
  *

@@ -18,8 +18,9 @@
  */
 package com.datatorrent.stram.engine;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
-import com.datatorrent.stram.tuple.Tuple;
 
 /**
  * @since 3.4.0
@@ -71,7 +72,13 @@ public class ForwardingReservoir implements SweepableReservoir
   }
 
   @Override
-  public Tuple sweep()
+  public void putToSink(Object tuple)
+  {
+    reservoir.getSink().put(tuple);
+  }
+
+  @Override
+  public ControlTuple sweep()
   {
     return reservoir.sweep();
   }

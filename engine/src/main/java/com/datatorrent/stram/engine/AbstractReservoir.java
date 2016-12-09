@@ -33,6 +33,8 @@ import org.jctools.queues.SpscArrayQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.netlet.util.CircularBuffer;
 import com.datatorrent.netlet.util.UnsafeBlockingQueue;
@@ -110,6 +112,12 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
   }
 
+  @Override
+  public void putToSink(Object tuple)
+  {
+    getSink().put(tuple);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -175,14 +183,14 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
 
     @Override
-    public Tuple sweep()
+    public ControlTuple sweep()
     {
       Object o;
       final SpscArrayQueue<Object> queue = this.queue;
       final Sink<Object> sink = getSink();
       while ((o = queue.peek()) != null) {
-        if (o instanceof Tuple) {
-          return (Tuple)o;
+        if (o instanceof ControlTuple) {
+          return (ControlTuple)o;
         }
         count++;
         sink.put(queue.poll());
@@ -397,7 +405,7 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
 
     @Override
-    public Tuple sweep()
+    public ControlTuple sweep()
     {
       Object o;
       final ReentrantLock lock = this.lock;
@@ -406,8 +414,8 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
       lock.lock();
       try {
         while ((o = queue.peek()) != null) {
-          if (o instanceof Tuple) {
-            return (Tuple)o;
+          if (o instanceof ControlTuple) {
+            return (ControlTuple)o;
           }
           count++;
           sink.put(queue.poll());
@@ -475,14 +483,14 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
 
     @Override
-    public Tuple sweep()
+    public ControlTuple sweep()
     {
       Object o;
       final ArrayBlockingQueue<Object> queue = this.queue;
       final Sink<Object> sink = getSink();
       while ((o = queue.peek()) != null) {
-        if (o instanceof Tuple) {
-          return (Tuple)o;
+        if (o instanceof ControlTuple) {
+          return (ControlTuple)o;
         }
         count++;
         sink.put(queue.poll());
@@ -677,15 +685,15 @@ public abstract class AbstractReservoir implements SweepableReservoir, BlockingQ
     }
 
     @Override
-    public Tuple sweep()
+    public ControlTuple sweep()
     {
       final CircularBuffer<Object> circularBuffer = this.circularBuffer;
       final Sink<Object> sink = getSink();
       final int size = circularBuffer.size();
       for (int i = 0; i < size; i++) {
-        if (circularBuffer.peekUnsafe() instanceof Tuple) {
+        if (circularBuffer.peekUnsafe() instanceof ControlTuple) {
           count += i;
-          return (Tuple)peekUnsafe();
+          return (ControlTuple)peekUnsafe();
         }
         sink.put(pollUnsafe());
       }

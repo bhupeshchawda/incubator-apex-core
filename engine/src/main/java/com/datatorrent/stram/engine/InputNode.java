@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.google.common.base.Throwables;
 
 import com.datatorrent.api.InputOperator;
@@ -79,8 +81,9 @@ public class InputNode extends Node<InputOperator>
 
     try {
       while (alive) {
-        Tuple t = controlTuples.sweep();
-        if (t == null) {
+        ControlTuple ct = controlTuples.sweep();
+        Tuple t = null;
+        if (ct == null) {
           if (insideStreamingWindow) {
             int generatedTuples = 0;
 
@@ -108,6 +111,11 @@ public class InputNode extends Node<InputOperator>
             Thread.sleep(0);
           }
         } else {
+          if (ct instanceof Tuple) {
+            t = (Tuple)ct;
+          } else {
+            throw new RuntimeException("Type other than Tuple unexpected in InputNode");
+          }
           controlTuples.remove();
           switch (t.getType()) {
             case BEGIN_WINDOW:

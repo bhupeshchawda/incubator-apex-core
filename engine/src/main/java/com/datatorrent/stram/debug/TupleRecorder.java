@@ -40,7 +40,7 @@ import com.datatorrent.api.Sink;
 import com.datatorrent.api.Stats;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.StringCodec;
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.common.codec.JsonStreamCodec;
 import com.datatorrent.common.util.ObjectMapperString;
 import com.datatorrent.netlet.util.Slice;

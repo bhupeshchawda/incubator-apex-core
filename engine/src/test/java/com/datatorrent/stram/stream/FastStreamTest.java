@@ -30,6 +30,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.server.Server;
@@ -40,7 +42,6 @@ import com.datatorrent.stram.engine.StreamContext;
 import com.datatorrent.stram.engine.SweepableReservoir;
 import com.datatorrent.stram.support.StramTestSupport;
 import com.datatorrent.stram.tuple.EndWindowTuple;
-import com.datatorrent.stram.tuple.Tuple;
 
 import static java.lang.Thread.sleep;
 
@@ -160,7 +161,7 @@ public class FastStreamTest
     publisher.put(StramTestSupport.generateBeginWindowTuple(upstreamNodeId, 1)); // it's a spurious tuple, presence of it should not affect the outcome of the test.
 
     for (int i = 0; i < 100; i++) {
-      Tuple t = reservoir.sweep();
+      ControlTuple t = reservoir.sweep();
       if (t == null) {
         sleep(5);
         continue;

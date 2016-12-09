@@ -43,7 +43,7 @@ import junitparams.Parameters;
 
 import static com.datatorrent.api.Context.PortContext.QUEUE_CAPACITY;
 import static com.datatorrent.api.Context.PortContext.SPIN_MILLIS;
-import static com.datatorrent.bufferserver.packet.MessageType.BEGIN_WINDOW;
+import static org.apache.apex.api.MessageType.BEGIN_WINDOW;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;

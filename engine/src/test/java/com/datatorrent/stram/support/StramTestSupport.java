@@ -61,7 +61,7 @@ import org.apache.maven.cli.logging.Slf4jLogger;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.StorageAgent;
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.stram.StramAppContext;
 import com.datatorrent.stram.StramLocalCluster;
 import com.datatorrent.stram.StramLocalCluster.LocalStreamingContainer;
