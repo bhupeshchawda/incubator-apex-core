@@ -28,13 +28,15 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Sink;
-import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.common.util.AsyncFSStorageAgent;
 import com.datatorrent.common.util.BaseOperator;
 import com.datatorrent.common.util.ScheduledThreadPoolExecutor;
@@ -93,7 +95,7 @@ public class WindowGeneratorTest
     final AtomicInteger beginWindowCount = new AtomicInteger(0);
     final AtomicInteger endWindowCount = new AtomicInteger(0);
     final AtomicInteger resetWindowCount = new AtomicInteger(0);
-    Tuple t;
+    ControlTuple t;
     reservoir.sweep();
     while ((t = reservoir.sweep()) != null) {
       reservoir.remove();
@@ -169,8 +171,9 @@ public class WindowGeneratorTest
     assert (rwt.getBaseSeconds() * 1000L == currentTIme);
     assert (rwt.getIntervalMillis() == windowWidth);
 
-    Tuple t = reservoir.sweep();
+    ControlTuple ct = reservoir.sweep();
     reservoir.remove();
+    Tuple t = (Tuple)ct;
     assert (t.getType() == MessageType.BEGIN_WINDOW);
     assert (t.getWindowId() == 0x0afebabe00000000L);
 
@@ -219,9 +222,13 @@ public class WindowGeneratorTest
     wg.deactivate();
 
     reservoir.sweep(); /* just transfer over all the control tuples */
-    Tuple t;
-    while ((t = reservoir.sweep()) != null) {
+    ControlTuple ct;
+    Tuple t = null;
+    while ((ct = reservoir.sweep()) != null) {
       reservoir.remove();
+      if (ct instanceof Tuple) {
+        t = (Tuple)ct;
+      }
       long windowId = t.getWindowId();
 
       switch (t.getType()) {

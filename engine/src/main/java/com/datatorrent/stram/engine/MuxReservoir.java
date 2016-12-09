@@ -25,6 +25,8 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.netlet.util.CircularBuffer;
 import com.datatorrent.stram.tuple.Tuple;
@@ -113,14 +115,20 @@ public abstract class MuxReservoir
     }
 
     @Override
-    public Tuple sweep()
+    public void putToSink(Object tuple)
+    {
+      this.sink.put(tuple);
+    }
+
+    @Override
+    public ControlTuple sweep()
     {
       final int size = size();
       if (size > 0) {
         for (int i = 0; i < size; i++) {
-          if (peekUnsafe() instanceof Tuple) {
+          if (peekUnsafe() instanceof ControlTuple) {
             count += i;
-            return (Tuple)peekUnsafe();
+            return (ControlTuple)peekUnsafe();
           }
           sink.put(pollUnsafe());
         }

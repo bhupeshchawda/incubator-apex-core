@@ -19,6 +19,8 @@
 package com.datatorrent.bufferserver.packet;
 
 
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.netlet.util.VarInt;
 

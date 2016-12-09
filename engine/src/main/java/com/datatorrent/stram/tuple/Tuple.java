@@ -18,7 +18,8 @@
  */
 package com.datatorrent.stram.tuple;
 
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.ControlTuple;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.bufferserver.util.Codec;
 
 /**
@@ -33,7 +34,7 @@ import com.datatorrent.bufferserver.util.Codec;
  *
  * @since 0.3.2
  */
-public class Tuple
+public class Tuple implements ControlTuple
 {
   protected long windowId;
   private final MessageType type;
@@ -65,6 +66,7 @@ public class Tuple
   /**
    * @return the type
    */
+  @Override
   public MessageType getType()
   {
     return type;

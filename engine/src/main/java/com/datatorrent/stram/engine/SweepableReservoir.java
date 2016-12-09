@@ -18,8 +18,9 @@
  */
 package com.datatorrent.stram.engine;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
-import com.datatorrent.stram.tuple.Tuple;
 
 /**
  * <p>SweepableReservoir interface.</p>
@@ -41,7 +42,7 @@ public interface SweepableReservoir extends Reservoir<Object>
    *
    * @return The control tuple encountered or null
    */
-  Tuple sweep();
+  ControlTuple sweep();
 
   /**
    * Get the count of tuples consumed.
@@ -51,4 +52,5 @@ public interface SweepableReservoir extends Reservoir<Object>
    */
   int getCount(boolean reset);
 
+  void putToSink(Object tuple);
 }

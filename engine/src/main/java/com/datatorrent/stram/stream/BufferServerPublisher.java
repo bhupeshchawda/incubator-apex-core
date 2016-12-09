@@ -24,13 +24,16 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTupleWrapper;
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Publisher;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
+import com.datatorrent.bufferserver.packet.CustomControlTuple;
 import com.datatorrent.bufferserver.packet.DataTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
-import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.bufferserver.packet.PayloadTuple;
 import com.datatorrent.bufferserver.packet.ResetWindowTuple;
 import com.datatorrent.bufferserver.packet.WindowIdTuple;
@@ -111,27 +114,54 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
           throw new UnsupportedOperationException("this data type is not handled in the stream");
       }
     } else {
-      if (statefulSerde == null) {
-        array = PayloadTuple.getSerializedTuple(serde.getPartition(payload), serde.toByteArray(payload));
-      } else {
-        DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+      if (payload instanceof ControlTupleWrapper) {
+        if (statefulSerde == null) {
+          array = CustomControlTuple.getSerializedTuple(serde.toByteArray(payload));
+        } else {
+          DataStatePair dsp = statefulSerde.toDataStatePair(payload);
         /*
          * if there is any state write that for the subscriber before we write the data.
          */
-        if (dsp.state != null) {
-          array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
-          try {
-            while (!write(array)) {
-              sleep(5);
+          if (dsp.state != null) {
+            array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+            try {
+              while (!write(array)) {
+                sleep(5);
+              }
+            } catch (InterruptedException ie) {
+              throw new RuntimeException(ie);
             }
-          } catch (InterruptedException ie) {
-            throw new RuntimeException(ie);
           }
-        }
         /*
          * Now that the state if any has been sent, we can proceed with the actual data we want to send.
          */
-        array = PayloadTuple.getSerializedTuple(statefulSerde.getPartition(payload), dsp.data);
+          array = CustomControlTuple.getSerializedTuple(dsp.data);
+        }
+
+
+      } else { // Payload tuple
+        if (statefulSerde == null) {
+          array = PayloadTuple.getSerializedTuple(serde.getPartition(payload), serde.toByteArray(payload));
+        } else {
+          DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+        /*
+         * if there is any state write that for the subscriber before we write the data.
+         */
+          if (dsp.state != null) {
+            array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+            try {
+              while (!write(array)) {
+                sleep(5);
+              }
+            } catch (InterruptedException ie) {
+              throw new RuntimeException(ie);
+            }
+          }
+        /*
+         * Now that the state if any has been sent, we can proceed with the actual data we want to send.
+         */
+          array = PayloadTuple.getSerializedTuple(statefulSerde.getPartition(payload), dsp.data);
+        }
       }
     }
 

@@ -18,6 +18,8 @@
  */
 package com.datatorrent.bufferserver.packet;
 
+import org.apache.apex.api.MessageType;
+
 /**
  * <p>ResetRequestTuple class.</p>
  *

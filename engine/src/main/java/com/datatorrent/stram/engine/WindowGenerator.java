@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.bufferserver.packet.MessageType;
+import org.apache.apex.api.MessageType;
 import com.datatorrent.common.util.ScheduledExecutorService;
 import com.datatorrent.netlet.util.CircularBuffer;
 import com.datatorrent.stram.tuple.EndWindowTuple;

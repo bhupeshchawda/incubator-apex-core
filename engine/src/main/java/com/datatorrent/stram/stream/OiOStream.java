@@ -18,6 +18,8 @@
  */
 package com.datatorrent.stram.stream;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
@@ -125,7 +127,13 @@ public class OiOStream implements Stream
     }
 
     @Override
-    public Tuple sweep()
+    public void putToSink(Object tuple)
+    {
+      OiOStream.this.sink.put(tuple);
+    }
+
+    @Override
+    public ControlTuple sweep()
     {
       throw new UnsupportedOperationException("Not supported.");
     }

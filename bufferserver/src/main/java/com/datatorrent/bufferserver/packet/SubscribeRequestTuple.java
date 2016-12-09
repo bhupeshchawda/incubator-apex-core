@@ -24,6 +24,8 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.bufferserver.util.Codec;
 import com.datatorrent.netlet.util.VarInt;
 

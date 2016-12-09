@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.server.Server;
@@ -42,7 +44,6 @@ import com.datatorrent.stram.engine.StreamContext;
 import com.datatorrent.stram.engine.SweepableReservoir;
 import com.datatorrent.stram.support.StramTestSupport;
 import com.datatorrent.stram.tuple.EndWindowTuple;
-import com.datatorrent.stram.tuple.Tuple;
 
 import static java.lang.Thread.sleep;
 
@@ -128,7 +129,7 @@ public class SocketStreamTest
   public void testBufferServerStreamWithLateActivationForSubscriber() throws Exception
   {
     for (int i = 0; i < 50; i++) {
-      Tuple t = reservoir.sweep();
+      ControlTuple t = reservoir.sweep();
       if (t == null) {
         sleep(5);
         continue;
@@ -196,7 +197,7 @@ public class SocketStreamTest
   public void verify() throws InterruptedException
   {
     for (int i = 0; i < 100; i++) {
-      Tuple t = reservoir.sweep();
+      ControlTuple t = reservoir.sweep();
       if (t == null) {
         sleep(5);
         continue;

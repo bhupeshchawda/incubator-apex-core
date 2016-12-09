@@ -23,6 +23,8 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.MessageType;
+
 import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.netlet.util.VarInt;
 
@@ -75,6 +77,9 @@ public abstract class Tuple
 
       case END_STREAM:
         return new WindowIdTuple(buffer, offset, length);
+
+      case CUSTOM_CONTROL:
+        return new CustomControlTuple(buffer, offset, length);
 
       case PUBLISHER_REQUEST:
         PublishRequestTuple prt = new PublishRequestTuple(buffer, offset, length);
