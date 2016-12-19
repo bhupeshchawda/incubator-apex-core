@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -37,6 +36,7 @@ import org.apache.commons.lang.UnhandledException;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.CustomControlTuple;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.api.Operator.InputPort;
@@ -253,7 +253,7 @@ public class GenericNode extends Node<Operator>
 
     TupleTracker tracker;
     LinkedList<TupleTracker> resetTupleTracker = new LinkedList<>();
-    LinkedHashMap<Long,ArrayList<Tuple>> customControlTuples = Maps.newLinkedHashMap();
+    Map<Long,LinkedHashMap<Long,Object>> customControlTuples = Maps.newHashMap();
 
     try {
       do {
@@ -360,16 +360,18 @@ public class GenericNode extends Node<Operator>
                     if (delay) {
                       t.setWindowId(windowAhead);
                     }
+
+                    processEndWindow(t);
+
                     /* Process control tuples here */
                     if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
-                      for (Tuple controlTuple : customControlTuples.get(currentWindowId)) {
-                        if (controlTuple instanceof ControlTuple) {
-                          System.out.println("Tuple type: " + ((ControlTuple)controlTuple).getUserObject());
-                          activePort.putToSink(((ControlTuple)controlTuple).getUserObject());
+                      for (Entry<Long, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
+                        if (idTuplePair.getValue() instanceof ControlTuple) {
+                          activePort.putToSink(((ControlTuple)idTuplePair.getValue()).getUserObject());
                         }
                       }
                     }
-                    processEndWindow(t);
+
                     activeQueues.addAll(inputs.entrySet());
                     expectingBeginWindow = activeQueues.size();
                     break activequeue;
@@ -382,10 +384,12 @@ public class GenericNode extends Node<Operator>
                 /* All custom control tuples are expected to be arriving in the current window only.*/
                 /* Buffer control tuples until end of the window */
                 if (!customControlTuples.containsKey(currentWindowId)) {
-                  customControlTuples.put(currentWindowId, new ArrayList<Tuple>());
+                  customControlTuples.put(currentWindowId, new LinkedHashMap<Long, Object>());
                 }
-                List<Tuple> tuples = customControlTuples.get(currentWindowId);
-                tuples.add(t);
+                CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
+                if (customControlTuples.get(currentWindowId).get(customControlTuple.getId()) != null) {
+                  customControlTuples.get(currentWindowId).put(customControlTuple.getId(), customControlTuple);
+                }
                 break;
 
               case CHECKPOINT:

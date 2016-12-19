@@ -24,6 +24,7 @@ package com.datatorrent.api;
 public class CustomControlTuple<C>
 {
   private C object;
+  private long id;
 
   public CustomControlTuple()
   {
@@ -32,6 +33,7 @@ public class CustomControlTuple<C>
   public CustomControlTuple(C object)
   {
     this.object = object;
+    id = System.currentTimeMillis();
   }
 
   public C getObject()
@@ -39,8 +41,8 @@ public class CustomControlTuple<C>
     return object;
   }
 
-  public void setObject(C object)
+  public long getId()
   {
-    this.object = object;
+    return id;
   }
 }
