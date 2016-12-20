@@ -18,13 +18,15 @@
  */
 package com.datatorrent.api;
 
+import java.util.UUID;
+
 /**
  *
  */
 public class CustomControlTuple<C>
 {
   private C object;
-  private long id;
+  private UUID id;
 
   public CustomControlTuple()
   {
@@ -33,7 +35,7 @@ public class CustomControlTuple<C>
   public CustomControlTuple(C object)
   {
     this.object = object;
-    id = System.currentTimeMillis();
+    id = UUID.randomUUID();
   }
 
   public C getObject()
@@ -41,7 +43,7 @@ public class CustomControlTuple<C>
     return object;
   }
 
-  public long getId()
+  public UUID getId()
   {
     return id;
   }
