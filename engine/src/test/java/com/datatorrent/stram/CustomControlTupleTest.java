@@ -20,6 +20,7 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
 public class CustomControlTupleTest
@@ -38,6 +39,7 @@ public class CustomControlTupleTest
   public static class Generator extends BaseOperator implements InputOperator
   {
     private boolean sendControl = false;
+    @OutputPortFieldAnnotation(propogateControlTuples = false)
     public final transient DefaultOutputPort<Double> out = new DefaultOutputPort<>();
 
     @Override

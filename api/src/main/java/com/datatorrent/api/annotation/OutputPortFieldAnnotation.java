@@ -51,5 +51,7 @@ public @interface OutputPortFieldAnnotation
    * @return  true if schema is required; false otherwise.
    */
   public boolean schemaRequired() default false;
+
+  public boolean propogateControlTuples() default true;
 }
 
