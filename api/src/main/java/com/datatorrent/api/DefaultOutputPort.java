@@ -72,7 +72,18 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
       throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
         " is different from the operator thread " + operatorThread.getName());
     }
-    sink.put(tuple);
+    if (propogateControl()) {
+      sink.put(tuple);
+    }
+  }
+
+  /**
+   * Overriding this method allows the user to control further propogation of the control tuples
+   * @return true by default, meaning by default the port will forward control tuples to downstream operators
+   */
+  public boolean propogateControl()
+  {
+    return true;
   }
 
   /**

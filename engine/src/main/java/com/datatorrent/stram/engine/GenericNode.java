@@ -18,6 +18,7 @@
  */
 package com.datatorrent.stram.engine;
 
+import java.lang.reflect.Field;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.UnhandledException;
+import org.apache.hadoop.util.ReflectionUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
@@ -44,6 +46,7 @@ import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.api.Operator.ShutdownException;
 import com.datatorrent.api.Sink;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.bufferserver.util.Codec;
@@ -72,6 +75,7 @@ public class GenericNode extends Node<Operator>
 {
   protected final HashMap<String, SweepableReservoir> inputs = new HashMap<>();
   protected ArrayList<DeferredInputConnection> deferredInputConnections = new ArrayList<>();
+  protected Map<Sink,Boolean> sinkPropogateControlMap = Maps.newHashMap();
 
   @Override
   @SuppressWarnings("unchecked")
@@ -392,7 +396,20 @@ public class GenericNode extends Node<Operator>
                 CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
                 if (!customControlTuples.get(currentWindowId).containsKey(customControlTuple.getId())) {
                   customControlTuples.get(currentWindowId).put(customControlTuple.getId(), customControlTuple);
+                  if (!delay) {
+                    if (sinkPropogateControlMap.isEmpty()) {
+                      processPortPropogationInfo();
+                    }
+
+                    for (int s = sinks.length; s-- > 0; ) {
+                      if (sinkPropogateControlMap.get(sinks[s])) {
+                        sinks[s].put(t);
+                      }
+                    }
+                    controlTupleCount++;
+                  }
                 }
+
                 break;
 
               case CHECKPOINT:
@@ -687,6 +704,23 @@ public class GenericNode extends Node<Operator>
       handleRequests(currentWindowId);
     }
 
+  }
+
+  protected void processPortPropogationInfo()
+  {
+    for (Entry<String,Sink<Object>> entry : outputs.entrySet()) {
+      for (Sink s: sinks) {
+        if (entry.getValue() == s) {
+          String portName = entry.getKey();
+          for (Field field : ReflectionUtils.getDeclaredFieldsIncludingInherited(operator.getClass())) {
+            if (field.getName() == portName) {
+              OutputPortFieldAnnotation annotation = field.getAnnotation(OutputPortFieldAnnotation.class);
+              sinkPropogateControlMap.put(s, annotation.propogateControlTuples());
+            }
+          }
+        }
+      }
+    }
   }
 
   private void fabricateFirstWindow(Operator.DelayOperator delayOperator, long windowAhead)
