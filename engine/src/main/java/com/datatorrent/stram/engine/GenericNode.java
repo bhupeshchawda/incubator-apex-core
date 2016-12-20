@@ -365,8 +365,8 @@ public class GenericNode extends Node<Operator>
                     /* Process control tuples here */
                     if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
                       for (Entry<UUID, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
-                        if (idTuplePair.getValue() instanceof ControlTuple) {
-                          activePort.putToSink(((ControlTuple)idTuplePair.getValue()).getUserObject());
+                        if (idTuplePair.getValue() instanceof CustomControlTuple) {
+                          activePort.putToSink(idTuplePair.getValue());
                         }
                       }
                     }
@@ -390,7 +390,7 @@ public class GenericNode extends Node<Operator>
                   customControlTuples.put(currentWindowId, new LinkedHashMap<UUID, Object>());
                 }
                 CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
-                if (customControlTuples.get(currentWindowId).get(customControlTuple.getId()) != null) {
+                if (!customControlTuples.get(currentWindowId).containsKey(customControlTuple.getId())) {
                   customControlTuples.get(currentWindowId).put(customControlTuple.getId(), customControlTuple);
                 }
                 break;

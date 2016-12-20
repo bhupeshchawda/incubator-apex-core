@@ -7,6 +7,8 @@ import javax.validation.ConstraintViolationException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -22,78 +24,93 @@ import com.datatorrent.common.util.BaseOperator;
 
 public class CustomControlTupleTest
 {
+  public static final Logger LOG = LoggerFactory.getLogger(CustomControlTupleTest.class);
+  private static final int TEST_FOR_NUM_WINDOWS = 5;
+  private static long controlIndex = 0;
+  private static long dataIndex = 0;
   private static int numDataTuples = 0;
   private static int numControlTuples = 0;
-  private static int inWindowControlTuples = 0;
+  private static int dataAfterControl = 0;
+  private static long numWindows = 0;
+  private static boolean run = true;
+  private static boolean endApp = false;
 
-  public static class RandomNumberGenerator extends BaseOperator implements InputOperator
+  public static class Generator extends BaseOperator implements InputOperator
   {
-    private boolean dataSent = false;
-    private boolean singleWindow = false;
-    public final transient DefaultOutputPort<Double> out = new DefaultOutputPort<Double>();
+    private boolean sendControl = false;
+    public final transient DefaultOutputPort<Double> out = new DefaultOutputPort<>();
 
     @Override
     public void beginWindow(long windowId)
     {
-      if (!singleWindow) {
-        out.emitControl(new CustomControlTuple(new Integer(1)));
+      if (run) {
+        out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+        sendControl = true;
       }
     }
 
     @Override
     public void emitTuples()
     {
-      if (!dataSent) {
-        out.emit(Math.random());
-        out.emitControl(new CustomControlTuple(new Integer(2)));
-        dataSent = true;
+      if (run) {
+        out.emit(new Double(dataIndex++));
+        if (sendControl) {
+          out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+          sendControl = false;
+        }
       }
     }
 
     @Override
     public void endWindow()
     {
-      if (!singleWindow) {
-        out.emitControl(new CustomControlTuple(new Integer(3)));
-        singleWindow = true;
+      if (run) {
+        out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+        if (numWindows++ > TEST_FOR_NUM_WINDOWS) {
+          run = false;
+        }
       }
     }
   }
 
   public static class Processor extends BaseOperator
   {
-    private boolean inWindow = false;
+    private boolean receivedControlThisWindow = false;
+    private long currentWindowId;
 
     public final transient DefaultInputPort<Double> input = new DefaultInputPort<Double>()
     {
       @Override
       public void process(Double tuple)
       {
+        if (receivedControlThisWindow) {
+          dataAfterControl++;
+        }
         numDataTuples++;
-        System.out.println("Received Data Tuple: " + tuple);
       }
 
       @Override
       public void processControl(CustomControlTuple tuple)
       {
         numControlTuples++;
-        if (inWindow) {
-          inWindowControlTuples++;
-        }
-        System.out.println("Received control Tuple: " + tuple);
+        receivedControlThisWindow = true;
       }
     };
 
     @Override
     public void beginWindow(long windowId)
     {
-      inWindow = true;
+      currentWindowId = windowId;
+      receivedControlThisWindow = false;
     }
 
     @Override
     public void endWindow()
     {
-      inWindow = false;
+      receivedControlThisWindow = false;
+      if (!run) {
+        endApp = true;
+      }
     }
   }
 
@@ -103,7 +120,7 @@ public class CustomControlTupleTest
     @Override
     public void populateDAG(DAG dag, Configuration conf)
     {
-      RandomNumberGenerator randomGenerator = dag.addOperator("randomGenerator", RandomNumberGenerator.class);
+      Generator randomGenerator = dag.addOperator("randomGenerator", Generator.class);
       Processor processor = dag.addOperator("process", new Processor());
       dag.addStream("randomData", randomGenerator.out, processor.input);
     }
@@ -121,13 +138,18 @@ public class CustomControlTupleTest
         @Override
         public Boolean call() throws Exception
         {
-          return numControlTuples >= 3;
+          return endApp;
         }
       });
 
-      lc.run(1000000); // runs for 10 seconds and quits
+      lc.run(10000); // runs for 10 seconds and quits
 
-      Assert.assertTrue(numDataTuples == 1 && numControlTuples == 3 && inWindowControlTuples == 3);
+      LOG.info("Data Tuples {} Data Index {}", numDataTuples, dataIndex);
+      LOG.info("Control Tuples {} Control Index {}", numControlTuples, controlIndex);
+      Assert.assertTrue("Incorrect Data Tuples", numDataTuples == dataIndex); ;
+      Assert.assertTrue("Incorrect Control Tuples", numControlTuples == controlIndex);
+      Assert.assertTrue("Data tuples received after control tuples in window", dataAfterControl == 0);
+
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
     }
