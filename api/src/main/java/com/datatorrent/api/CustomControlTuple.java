@@ -20,12 +20,15 @@ package com.datatorrent.api;
 
 import java.util.UUID;
 
-/**
- *
- */
-public class CustomControlTuple<C>
+import org.apache.hadoop.classification.InterfaceStability;
+
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+
+@InterfaceStability.Evolving
+public final class CustomControlTuple<C>
 {
   private C object;
+  @com.esotericsoftware.kryo.serializers.FieldSerializer.Bind(JavaSerializer.class)
   private UUID id;
 
   public CustomControlTuple()

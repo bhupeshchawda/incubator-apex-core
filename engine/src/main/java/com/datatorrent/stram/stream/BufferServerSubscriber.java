@@ -42,6 +42,7 @@ import com.datatorrent.stram.engine.SweepableReservoir;
 import com.datatorrent.stram.engine.WindowGenerator;
 import com.datatorrent.stram.plan.logical.StreamCodecWrapperForPersistance;
 import com.datatorrent.stram.tuple.CheckpointTuple;
+import com.datatorrent.stram.tuple.ControlTuple;
 import com.datatorrent.stram.tuple.EndStreamTuple;
 import com.datatorrent.stram.tuple.EndWindowTuple;
 import com.datatorrent.stram.tuple.ResetWindowTuple;
@@ -358,7 +359,7 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
               break;
 
             case CUSTOM_CONTROL:
-              o = processPayload(data);
+              o = new ControlTuple(processPayload(data));
               break;
 
             default:
