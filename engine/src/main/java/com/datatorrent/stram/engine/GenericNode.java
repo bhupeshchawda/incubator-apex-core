@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,7 +254,7 @@ public class GenericNode extends Node<Operator>
 
     TupleTracker tracker;
     LinkedList<TupleTracker> resetTupleTracker = new LinkedList<>();
-    Map<Long,LinkedHashMap<Long,Object>> customControlTuples = Maps.newHashMap();
+    Map<Long,LinkedHashMap<UUID,Object>> customControlTuples = Maps.newHashMap();
 
     try {
       do {
@@ -361,16 +362,18 @@ public class GenericNode extends Node<Operator>
                       t.setWindowId(windowAhead);
                     }
 
-                    processEndWindow(t);
-
                     /* Process control tuples here */
                     if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
-                      for (Entry<Long, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
+                      for (Entry<UUID, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
                         if (idTuplePair.getValue() instanceof ControlTuple) {
                           activePort.putToSink(((ControlTuple)idTuplePair.getValue()).getUserObject());
                         }
                       }
                     }
+                    // Clear
+                    customControlTuples.clear();
+
+                    processEndWindow(t);
 
                     activeQueues.addAll(inputs.entrySet());
                     expectingBeginWindow = activeQueues.size();
@@ -384,7 +387,7 @@ public class GenericNode extends Node<Operator>
                 /* All custom control tuples are expected to be arriving in the current window only.*/
                 /* Buffer control tuples until end of the window */
                 if (!customControlTuples.containsKey(currentWindowId)) {
-                  customControlTuples.put(currentWindowId, new LinkedHashMap<Long, Object>());
+                  customControlTuples.put(currentWindowId, new LinkedHashMap<UUID, Object>());
                 }
                 CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
                 if (customControlTuples.get(currentWindowId).get(customControlTuple.getId()) != null) {
