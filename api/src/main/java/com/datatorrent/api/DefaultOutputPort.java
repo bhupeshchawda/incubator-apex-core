@@ -64,7 +64,7 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
     sink.put(tuple);
   }
 
-  public void emitControl(CustomControlTuple tuple)
+  public void emitControl(Object tuple)
   {
     // operatorThread could be null if setup() never got called.
     if (operatorThread != null && Thread.currentThread() != operatorThread) {
@@ -72,18 +72,7 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
       throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
         " is different from the operator thread " + operatorThread.getName());
     }
-    if (propogateControl()) {
-      sink.put(tuple);
-    }
-  }
-
-  /**
-   * Overriding this method allows the user to control further propogation of the control tuples
-   * @return true by default, meaning by default the port will forward control tuples to downstream operators
-   */
-  public boolean propogateControl()
-  {
-    return true;
+    sink.put(new CustomControlTuple(tuple));
   }
 
   /**

@@ -370,7 +370,7 @@ public class GenericNode extends Node<Operator>
                     if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
                       for (Entry<UUID, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
                         if (idTuplePair.getValue() instanceof CustomControlTuple) {
-                          activePort.putToSink(idTuplePair.getValue());
+                          activePort.putToSink((CustomControlTuple)idTuplePair.getValue());
                         }
                       }
                     }
@@ -402,8 +402,8 @@ public class GenericNode extends Node<Operator>
                     }
 
                     for (int s = sinks.length; s-- > 0; ) {
-                      if (sinkPropogateControlMap.get(sinks[s])) {
-                        sinks[s].put(t);
+                      if (!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s])) {
+                        sinks[s].put(customControlTuple);
                       }
                     }
                     controlTupleCount++;
@@ -713,9 +713,11 @@ public class GenericNode extends Node<Operator>
         if (entry.getValue() == s) {
           String portName = entry.getKey();
           for (Field field : ReflectionUtils.getDeclaredFieldsIncludingInherited(operator.getClass())) {
-            if (field.getName() == portName) {
+            if (field.getName().equals(portName)) {
               OutputPortFieldAnnotation annotation = field.getAnnotation(OutputPortFieldAnnotation.class);
-              sinkPropogateControlMap.put(s, annotation.propogateControlTuples());
+              if (annotation != null) {
+                sinkPropogateControlMap.put(s, annotation.propogateControlTuples());
+              }
             }
           }
         }
