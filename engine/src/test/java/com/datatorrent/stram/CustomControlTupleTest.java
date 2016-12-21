@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.CustomControlTuple;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -46,7 +45,7 @@ public class CustomControlTupleTest
     public void beginWindow(long windowId)
     {
       if (run) {
-        out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+        out.emitControl(new Long(controlIndex++));
         sendControl = true;
       }
     }
@@ -57,7 +56,7 @@ public class CustomControlTupleTest
       if (run) {
         out.emit(new Double(dataIndex++));
         if (sendControl) {
-          out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+          out.emitControl(new Long(controlIndex++));
           sendControl = false;
         }
       }
@@ -67,7 +66,7 @@ public class CustomControlTupleTest
     public void endWindow()
     {
       if (run) {
-        out.emitControl(new CustomControlTuple(new Long(controlIndex++)));
+        out.emitControl(new Long(controlIndex++));
         if (numWindows++ > TEST_FOR_NUM_WINDOWS) {
           run = false;
         }
@@ -92,7 +91,7 @@ public class CustomControlTupleTest
       }
 
       @Override
-      public void processControl(CustomControlTuple tuple)
+      public void processControl(Object tuple)
       {
         numControlTuples++;
         receivedControlThisWindow = true;
