@@ -32,8 +32,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.bufferserver.packet.BeginWindowTuple;
 import org.apache.apex.api.MessageType;
+
+import com.datatorrent.bufferserver.packet.BeginWindowTuple;
 import com.datatorrent.bufferserver.packet.ResetWindowTuple;
 import com.datatorrent.bufferserver.packet.Tuple;
 import com.datatorrent.bufferserver.storage.Storage;

@@ -35,6 +35,7 @@ import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.MessageType;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -54,7 +55,6 @@ import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import org.apache.apex.api.MessageType;
 import com.datatorrent.bufferserver.packet.PayloadTuple;
 import com.datatorrent.bufferserver.server.Server;
 import com.datatorrent.common.util.AsyncFSStorageAgent;

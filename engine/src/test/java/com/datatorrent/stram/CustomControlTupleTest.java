@@ -115,7 +115,7 @@ public class CustomControlTupleTest
     }
   }
 
-  @ApplicationAnnotation(name="CustomControlTupleTest")
+  @ApplicationAnnotation(name = "CustomControlTupleTest")
   public static class Application implements StreamingApplication
   {
     @Override
@@ -128,7 +128,8 @@ public class CustomControlTupleTest
   }
 
   @Test
-  public void testApplication() throws IOException, Exception {
+  public void testApplication() throws IOException, Exception
+  {
     try {
       LocalMode lma = LocalMode.newInstance();
       Configuration conf = new Configuration(false);

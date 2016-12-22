@@ -24,13 +24,11 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.jctools.queues.SpscArrayQueue;
-
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +41,8 @@ import junitparams.Parameters;
 
 import static com.datatorrent.api.Context.PortContext.QUEUE_CAPACITY;
 import static com.datatorrent.api.Context.PortContext.SPIN_MILLIS;
-import static org.apache.apex.api.MessageType.BEGIN_WINDOW;
-
 import static java.lang.Thread.sleep;
+import static org.apache.apex.api.MessageType.BEGIN_WINDOW;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

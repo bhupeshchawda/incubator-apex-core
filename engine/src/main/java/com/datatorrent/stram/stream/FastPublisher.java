@@ -28,6 +28,8 @@ import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.MessageType;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Output;
@@ -35,7 +37,6 @@ import com.esotericsoftware.kryo.io.Output;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
-import org.apache.apex.api.MessageType;
 import com.datatorrent.bufferserver.packet.PublishRequestTuple;
 import com.datatorrent.bufferserver.packet.ResetWindowTuple;
 import com.datatorrent.bufferserver.packet.WindowIdTuple;

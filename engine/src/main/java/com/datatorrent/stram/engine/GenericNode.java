@@ -33,6 +33,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.ControlAwareDefaultInputPort;
 import org.apache.apex.api.ControlTuple;
 import org.apache.apex.api.ControlTupleWrapper;
 import org.apache.apex.api.MessageType;
@@ -77,6 +78,7 @@ public class GenericNode extends Node<Operator>
   protected final HashMap<String, SweepableReservoir> inputs = new HashMap<>();
   protected ArrayList<DeferredInputConnection> deferredInputConnections = new ArrayList<>();
   protected Map<Sink,Boolean> sinkPropogateControlMap = Maps.newHashMap();
+  protected Map<SweepableReservoir,InputPort> reservoirPortMap = Maps.newHashMap();
 
   @Override
   @SuppressWarnings("unchecked")
@@ -280,7 +282,8 @@ public class GenericNode extends Node<Operator>
             if (delay) {
               windowAhead = WindowGenerator.getAheadWindowId(t.getWindowId(), firstWindowMillis, windowWidthMillis, 1);
             }
-            switch (t.getType()) {
+//            logger.info("Received tuple type {}", ct.getType());
+            switch (ct.getType()) {
               case BEGIN_WINDOW:
                 if (expectingBeginWindow == totalQueues) {
                   // This is the first begin window tuple among all ports
@@ -382,6 +385,14 @@ public class GenericNode extends Node<Operator>
                     // Clear
                     customControlTuples.clear();
 
+                    if (reservoirPortMap.isEmpty()) {
+                      populateReservoirInputPortMap();
+                    }
+                    if (reservoirPortMap.containsKey(activePort)) {
+                      if (reservoirPortMap.get(activePort) instanceof ControlAwareDefaultInputPort) {
+                        ///////////
+                      }
+                    }
                     processEndWindow(t);
 
                     activeQueues.addAll(inputs.entrySet());
@@ -401,7 +412,7 @@ public class GenericNode extends Node<Operator>
                 ControlTupleWrapper controlTupleWrapper = null;
                 if (ct instanceof CustomControlTuple) {
                   // Tuple was serialized
-                  controlTupleWrapper = (ControlTupleWrapper)((CustomControlTuple)t).getUserObject();
+                  controlTupleWrapper = (ControlTupleWrapper)((CustomControlTuple)ct).getUserObject();
 
                 } else if (ct instanceof ControlTupleWrapper) {
                   controlTupleWrapper = (ControlTupleWrapper)ct;
@@ -734,6 +745,17 @@ public class GenericNode extends Node<Operator>
               }
             }
           }
+        }
+      }
+    }
+  }
+
+  protected void populateReservoirInputPortMap()
+  {
+    for (Entry<String,Operators.PortContextPair<InputPort<?>>> entry : descriptor.inputPorts.entrySet()) {
+      if (entry.getValue().component instanceof InputPort) {
+        if (inputs.containsKey(entry.getKey())) {
+          reservoirPortMap.put(inputs.get(entry.getKey()), entry.getValue().component);
         }
       }
     }

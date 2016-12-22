@@ -52,6 +52,7 @@ import org.junit.rules.TestWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.MessageType;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -61,7 +62,6 @@ import org.apache.maven.cli.logging.Slf4jLogger;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.StorageAgent;
-import org.apache.apex.api.MessageType;
 import com.datatorrent.stram.StramAppContext;
 import com.datatorrent.stram.StramLocalCluster;
 import com.datatorrent.stram.StramLocalCluster.LocalStreamingContainer;
