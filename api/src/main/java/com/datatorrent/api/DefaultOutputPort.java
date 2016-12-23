@@ -37,8 +37,8 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
   public static final String THREAD_AFFINITY_DISABLE_CHECK = "com.datatorrent.api.DefaultOutputPort.thread.check.disable";
   private static final Logger logger = LoggerFactory.getLogger(DefaultOutputPort.class);
 
-  private transient Sink<Object> sink;
-  private transient Thread operatorThread;
+  protected transient Sink<Object> sink;
+  protected transient Thread operatorThread;
 
   /**
    * <p>Constructor for DefaultOutputPort.</p>
@@ -62,17 +62,6 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
           " is different from the operator thread " + operatorThread.getName());
     }
     sink.put(tuple);
-  }
-
-  public void emitControl(Object tuple)
-  {
-    // operatorThread could be null if setup() never got called.
-    if (operatorThread != null && Thread.currentThread() != operatorThread) {
-      // only under certain modes: enforce this
-      throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
-        " is different from the operator thread " + operatorThread.getName());
-    }
-    sink.put(new CustomControlTuple(tuple));
   }
 
   /**

@@ -197,6 +197,12 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
+  public void putControl(Object tuple)
+  {
+    throw new UnsupportedOperationException("Not supported yet");
+  }
+
   public SweepableReservoir releaseReservoir(String sinkId)
   {
     BufferReservoir r = reservoirMap.remove(sinkId);

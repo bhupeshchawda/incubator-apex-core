@@ -105,6 +105,12 @@ public class AbstractReservoirTest
         }
 
         @Override
+        public void putControl(Object tuple)
+        {
+          count++;
+        }
+
+        @Override
         public int getCount(boolean reset)
         {
           try {
@@ -142,6 +148,11 @@ public class AbstractReservoirTest
           if (++count == COUNT) {
             throw new RuntimeException();
           }
+        }
+
+        @Override
+        public void putControl(Object tuple)
+        {
         }
 
         @Override

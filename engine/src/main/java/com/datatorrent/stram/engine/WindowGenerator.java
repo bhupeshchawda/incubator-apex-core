@@ -228,6 +228,11 @@ public class WindowGenerator extends MuxReservoir implements Stream, Runnable
   }
 
   @Override
+  public void putControl(Object tuple)
+  {
+  }
+
+  @Override
   protected Queue getQueue()
   {
     return queue;

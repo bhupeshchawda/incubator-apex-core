@@ -68,6 +68,13 @@ public class UnifierNode extends GenericNode
     }
 
     @Override
+    public void putControl(Object tuple)
+    {
+      count++;
+      unifier.process(tuple);
+    }
+
+    @Override
     public int getCount(boolean reset)
     {
       try {

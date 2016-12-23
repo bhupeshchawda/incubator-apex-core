@@ -99,6 +99,17 @@ public class InlineStream implements Stream
   }
 
   @Override
+  public void putControl(Object tuple)
+  {
+    try {
+      reservoir.put(tuple);
+    } catch(InterruptedException ie) {
+      logger.debug("Interrupted", ie);
+      throw new RuntimeException(ie);
+    }
+  }
+
+  @Override
   public int getCount(boolean reset)
   {
     try {

@@ -45,6 +45,15 @@ public class TestSink implements Sink<Object>
   }
 
   @Override
+  public void putControl(Object tuple)
+  {
+    synchronized (collectedTuples) {
+      collectedTuples.add(tuple);
+      collectedTuples.notifyAll();
+    }
+  }
+
+  @Override
   public int getCount(boolean reset)
   {
     return 0;

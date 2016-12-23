@@ -301,6 +301,11 @@ public class GenericNodeTest
       }
 
       @Override
+      public void putControl(Object tuple)
+      {
+      }
+
+      @Override
       public int getCount(boolean reset)
       {
         return 0;
@@ -430,6 +435,11 @@ public class GenericNodeTest
       public void put(Object tuple)
       {
         tuples.add(tuple);
+      }
+
+      @Override
+      public void putControl(Object tuple)
+      {
       }
 
       @Override

@@ -54,6 +54,11 @@ public interface Sink<T>
     }
 
     @Override
+    public void putControl(Object tuple)
+    {
+    }
+
+    @Override
     public int getCount(boolean reset)
     {
       return 0;
@@ -67,6 +72,12 @@ public interface Sink<T>
    * @param tuple payload to be processed by this sink.
    */
   public void put(T tuple);
+
+  /**
+   * Process the payload which should be an {@link Object}
+   * @param tuple payload to be processed by this sink
+   */
+  public void putControl(Object tuple);
 
   /**
    * Give the count of the tuples processed since the last reset.

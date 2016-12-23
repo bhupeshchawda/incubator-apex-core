@@ -56,6 +56,15 @@ public class MuxSink implements Sink<Object>
     }
   }
 
+  @Override
+  public void putControl(Object tuple)
+  {
+    count++;
+    for (int i = sinks.length; i-- > 0;) {
+      sinks[i].putControl(tuple);
+    }
+  }
+
   public void add(Sink<Object>... s)
   {
     int i = sinks.length;

@@ -45,6 +45,7 @@ import com.datatorrent.common.codec.JsonStreamCodec;
 import com.datatorrent.common.util.ObjectMapperString;
 import com.datatorrent.netlet.util.Slice;
 import com.datatorrent.stram.engine.WindowGenerator;
+import com.datatorrent.stram.tuple.ControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 import com.datatorrent.stram.util.FSPartFileCollection;
 import com.datatorrent.stram.util.SharedPubSubWebSocketClient;
@@ -503,6 +504,14 @@ public class TupleRecorder
       } else {
         writeTuple(payload, portName);
       }
+    }
+
+    @Override
+    public void putControl(Object tuple)
+    {
+      count++;
+      // tuple should be instance of CustomControlTuple
+      writeControlTuple(new ControlTuple(tuple), portName);
     }
 
     @Override

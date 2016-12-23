@@ -33,6 +33,8 @@ import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Output;
 
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
+import com.datatorrent.bufferserver.packet.ControlTuple;
+import com.datatorrent.bufferserver.packet.DataTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
 import com.datatorrent.bufferserver.packet.MessageType;
@@ -206,6 +208,46 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
 
   long item;
 
+  public byte[] getSerializedTuple(Tuple t)
+  {
+    byte[] array;
+    switch (t.getType()) {
+      case CHECKPOINT:
+        array = WindowIdTuple.getSerializedTuple((int)t.getWindowId());
+        array[0] = MessageType.CHECKPOINT_VALUE;
+        break;
+
+      case BEGIN_WINDOW:
+        array = BeginWindowTuple.getSerializedTuple((int)t.getWindowId());
+        break;
+
+      case END_WINDOW:
+        array = EndWindowTuple.getSerializedTuple((int)t.getWindowId());
+        break;
+
+      case END_STREAM:
+        array = EndStreamTuple.getSerializedTuple((int)t.getWindowId());
+        break;
+
+      case RESET_WINDOW:
+        com.datatorrent.stram.tuple.ResetWindowTuple rwt = (com.datatorrent.stram.tuple.ResetWindowTuple)t;
+        array = ResetWindowTuple.getSerializedTuple(rwt.getBaseSeconds(), rwt.getIntervalMillis());
+        break;
+
+      case CUSTOM_CONTROL:
+        array = DataTuple.getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE,t.)
+      default:
+        throw new UnsupportedOperationException("this data type is not handled in the stream");
+    }
+    return array;
+  }
+
+  @Override
+  public void putControl(Object tuple)
+  {
+    put(tuple);
+  }
+
   @Override
   @SuppressWarnings("SleepWhileInLoop")
   public void put(Object tuple)
@@ -213,33 +255,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
     if (tuple instanceof Tuple) {
       final Tuple t = (Tuple)tuple;
 
-      byte[] array;
-      switch (t.getType()) {
-        case CHECKPOINT:
-          array = WindowIdTuple.getSerializedTuple((int)t.getWindowId());
-          array[0] = MessageType.CHECKPOINT_VALUE;
-          break;
-
-        case BEGIN_WINDOW:
-          array = BeginWindowTuple.getSerializedTuple((int)t.getWindowId());
-          break;
-
-        case END_WINDOW:
-          array = EndWindowTuple.getSerializedTuple((int)t.getWindowId());
-          break;
-
-        case END_STREAM:
-          array = EndStreamTuple.getSerializedTuple((int)t.getWindowId());
-          break;
-
-        case RESET_WINDOW:
-          com.datatorrent.stram.tuple.ResetWindowTuple rwt = (com.datatorrent.stram.tuple.ResetWindowTuple)t;
-          array = ResetWindowTuple.getSerializedTuple(rwt.getBaseSeconds(), rwt.getIntervalMillis());
-          break;
-
-        default:
-          throw new UnsupportedOperationException("this data type is not handled in the stream");
-      }
+      byte[] array = getSerializedTuple(t);
 
       int size = array.length;
       if (writeBuffer.hasRemaining()) {

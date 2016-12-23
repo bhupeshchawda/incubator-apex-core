@@ -46,6 +46,11 @@ public class MuxSinkTest
       }
 
       @Override
+      public void putControl(Object tuple)
+      {
+      }
+
+      @Override
       public int getCount(boolean reset)
       {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -59,6 +64,11 @@ public class MuxSinkTest
       public void put(Object tuple)
       {
         throw new UnsupportedOperationException("Not supported yet.");
+      }
+
+      @Override
+      public void putControl(Object tuple)
+      {
       }
 
       @Override

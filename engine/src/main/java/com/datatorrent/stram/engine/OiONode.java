@@ -151,6 +151,12 @@ public class OiONode extends GenericNode
     }
 
     @Override
+    public void putControl(Object tuple)
+    {
+      // TODO Implement GenericNode logic here for Thread local
+    }
+
+    @Override
     public int getCount(boolean reset)
     {
       throw new UnsupportedOperationException("Not supported yet.");

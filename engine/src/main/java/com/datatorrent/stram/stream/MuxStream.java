@@ -121,6 +121,15 @@ public class MuxStream implements Stream.MultiSinkCapableStream
   }
 
   @Override
+  public void putControl(Object tuple)
+  {
+    count++;
+    for (int i = sinks.length; i-- > 0;) {
+      sinks[i].put(tuple);
+    }
+  }
+
+  @Override
   public int getCount(boolean reset)
   {
     try {

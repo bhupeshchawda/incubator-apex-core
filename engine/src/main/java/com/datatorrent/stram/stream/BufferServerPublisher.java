@@ -24,11 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.CustomControlTuple;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Publisher;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
-import com.datatorrent.bufferserver.packet.ControlTuple;
 import com.datatorrent.bufferserver.packet.DataTuple;
 import com.datatorrent.bufferserver.packet.EndStreamTuple;
 import com.datatorrent.bufferserver.packet.EndWindowTuple;
@@ -112,55 +110,28 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
         default:
           throw new UnsupportedOperationException("this data type is not handled in the stream");
       }
-    } else {
-      if (payload instanceof CustomControlTuple) {
-        if (statefulSerde == null) {
-          array = ControlTuple.getSerializedTuple(serde.toByteArray(payload));
-        } else {
-          DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+    } else { // Payload tuple
+      if (statefulSerde == null) {
+        array = PayloadTuple.getSerializedTuple(serde.getPartition(payload), serde.toByteArray(payload));
+      } else {
+        DataStatePair dsp = statefulSerde.toDataStatePair(payload);
         /*
          * if there is any state write that for the subscriber before we write the data.
          */
-          if (dsp.state != null) {
-            array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
-            try {
-              while (!write(array)) {
-                sleep(5);
-              }
-            } catch (InterruptedException ie) {
-              throw new RuntimeException(ie);
+        if (dsp.state != null) {
+          array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+          try {
+            while (!write(array)) {
+              sleep(5);
             }
+          } catch (InterruptedException ie) {
+            throw new RuntimeException(ie);
           }
+        }
         /*
          * Now that the state if any has been sent, we can proceed with the actual data we want to send.
          */
-          array = ControlTuple.getSerializedTuple(dsp.data);
-        }
-
-
-      } else { // Payload tuple
-        if (statefulSerde == null) {
-          array = PayloadTuple.getSerializedTuple(serde.getPartition(payload), serde.toByteArray(payload));
-        } else {
-          DataStatePair dsp = statefulSerde.toDataStatePair(payload);
-        /*
-         * if there is any state write that for the subscriber before we write the data.
-         */
-          if (dsp.state != null) {
-            array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
-            try {
-              while (!write(array)) {
-                sleep(5);
-              }
-            } catch (InterruptedException ie) {
-              throw new RuntimeException(ie);
-            }
-          }
-        /*
-         * Now that the state if any has been sent, we can proceed with the actual data we want to send.
-         */
-          array = PayloadTuple.getSerializedTuple(statefulSerde.getPartition(payload), dsp.data);
-        }
+        array = PayloadTuple.getSerializedTuple(statefulSerde.getPartition(payload), dsp.data);
       }
     }
 
@@ -171,6 +142,35 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
       publishedByteCount.addAndGet(array.length);
     } catch (InterruptedException ie) {
       throw new RuntimeException(ie);
+    }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    count++;
+    byte[] array;
+    if (statefulSerde == null) {
+      array = DataTuple.getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, serde.toByteArray(payload));
+    } else {
+      DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+        /*
+         * if there is any state write that for the subscriber before we write the data.
+         */
+      if (dsp.state != null) {
+        array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+        try {
+          while (!write(array)) {
+            sleep(5);
+          }
+        } catch (InterruptedException ie) {
+          throw new RuntimeException(ie);
+        }
+      }
+        /*
+         * Now that the state if any has been sent, we can proceed with the actual data we want to send.
+         */
+      array = DataTuple.getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, dsp.data);
     }
   }
 

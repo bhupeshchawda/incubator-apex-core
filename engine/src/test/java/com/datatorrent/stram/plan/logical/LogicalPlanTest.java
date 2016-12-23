@@ -746,6 +746,11 @@ public class LogicalPlanTest
       }
 
       @Override
+      public void putControl(Object tuple)
+      {
+      }
+
+      @Override
       public int getCount(boolean reset)
       {
         return 0;

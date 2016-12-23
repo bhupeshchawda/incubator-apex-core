@@ -39,7 +39,6 @@ import org.apache.hadoop.util.ReflectionUtils;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.CustomControlTuple;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.api.Operator.InputPort;
@@ -54,7 +53,6 @@ import com.datatorrent.stram.api.StreamingContainerUmbilicalProtocol.ContainerSt
 import com.datatorrent.stram.debug.TappedReservoir;
 import com.datatorrent.stram.plan.logical.LogicalPlan;
 import com.datatorrent.stram.plan.logical.Operators;
-import com.datatorrent.stram.tuple.ControlTuple;
 import com.datatorrent.stram.tuple.ResetWindowTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
@@ -366,16 +364,16 @@ public class GenericNode extends Node<Operator>
                       t.setWindowId(windowAhead);
                     }
 
-                    /* Process control tuples here */
-                    if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
-                      for (Entry<UUID, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
-                        if (idTuplePair.getValue() instanceof CustomControlTuple) {
-                          activePort.putToSink((CustomControlTuple)idTuplePair.getValue());
-                        }
-                      }
-                    }
-                    // Clear
-                    customControlTuples.clear();
+//                    /* Process control tuples here */
+//                    if (customControlTuples != null && customControlTuples.containsKey(currentWindowId)) {
+//                      for (Entry<UUID, Object> idTuplePair : customControlTuples.get(currentWindowId).entrySet()) {
+//                        if (idTuplePair.getValue() instanceof CustomControlTuple) {
+//                          activePort.putToSink((CustomControlTuple)idTuplePair.getValue());
+//                        }
+//                      }
+//                    }
+//                    // Clear
+//                    customControlTuples.clear();
 
                     processEndWindow(t);
 
@@ -388,27 +386,27 @@ public class GenericNode extends Node<Operator>
 
               case CUSTOM_CONTROL:
                 activePort.remove();
-                /* All custom control tuples are expected to be arriving in the current window only.*/
-                /* Buffer control tuples until end of the window */
-                if (!customControlTuples.containsKey(currentWindowId)) {
-                  customControlTuples.put(currentWindowId, new LinkedHashMap<UUID, Object>());
-                }
-                CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
-                if (!customControlTuples.get(currentWindowId).containsKey(customControlTuple.getId())) {
-                  customControlTuples.get(currentWindowId).put(customControlTuple.getId(), customControlTuple);
-                  if (!delay) {
-                    if (sinkPropogateControlMap.isEmpty()) {
-                      processPortPropogationInfo();
-                    }
-
-                    for (int s = sinks.length; s-- > 0; ) {
-                      if (!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s])) {
-                        sinks[s].put(customControlTuple);
-                      }
-                    }
-                    controlTupleCount++;
-                  }
-                }
+//                /* All custom control tuples are expected to be arriving in the current window only.*/
+//                /* Buffer control tuples until end of the window */
+//                if (!customControlTuples.containsKey(currentWindowId)) {
+//                  customControlTuples.put(currentWindowId, new LinkedHashMap<UUID, Object>());
+//                }
+//                CustomControlTuple customControlTuple = (CustomControlTuple)((ControlTuple)t).getUserObject();
+//                if (!customControlTuples.get(currentWindowId).containsKey(customControlTuple.getId())) {
+//                  customControlTuples.get(currentWindowId).put(customControlTuple.getId(), customControlTuple);
+//                  if (!delay) {
+//                    if (sinkPropogateControlMap.isEmpty()) {
+//                      processPortPropogationInfo();
+//                    }
+//
+//                    for (int s = sinks.length; s-- > 0; ) {
+//                      if (!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s])) {
+//                        sinks[s].put(customControlTuple);
+//                      }
+//                    }
+//                    controlTupleCount++;
+//                  }
+//                }
 
                 break;
 

@@ -69,6 +69,13 @@ public class PartitionAwareSink<T> implements Sink<T>
     }
   }
 
+  @Override
+  public void putControl(Object tuple)
+  {
+    count++;
+    output.putControl(tuple);
+  }
+
   protected boolean canSendToOutput(T payload)
   {
     return partitions.contains(serde.getPartition(payload) & mask);

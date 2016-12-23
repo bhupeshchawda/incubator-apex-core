@@ -72,6 +72,11 @@ public class WindowGeneratorTest
       }
 
       @Override
+      public void putControl(Object tuple)
+      {
+      }
+
+      @Override
       public int getCount(boolean reset)
       {
         return 0;
@@ -158,6 +163,10 @@ public class WindowGeneratorTest
         }
       }
 
+      @Override
+      public void putControl(Object tuple)
+      {
+      }
     });
     generator.activate(null);
     msse.tick(1);
@@ -200,6 +209,10 @@ public class WindowGeneratorTest
         logger.debug("unexpected payload {}", payload);
       }
 
+      @Override
+      public void putControl(Object tuple)
+      {
+      }
     };
 
     ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(1, "WindowGenerator");

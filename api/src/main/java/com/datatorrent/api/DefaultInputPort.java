@@ -31,7 +31,7 @@ import com.datatorrent.api.Operator.InputPort;
  */
 public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
 {
-  private int count;
+  protected int count;
   protected boolean connected = false;
 
   /**
@@ -76,11 +76,13 @@ public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
   public void put(T tuple)
   {
     count++;
-    if (tuple instanceof CustomControlTuple) {
-      processControl(((CustomControlTuple)tuple).getObject());
-    } else {
-      process(tuple);
-    }
+    process(tuple);
+  }
+
+  @Override
+  public void putControl(Object tuple)
+  {
+    throw new UnsupportedOperationException("Not supported. Use ControlAwareDefaultInputPort");
   }
 
   /** {@inheritDoc} */
@@ -112,9 +114,4 @@ public abstract class DefaultInputPort<T> implements InputPort<T>, Sink<T>
    * <p>process.</p>
    */
   public abstract void process(T tuple);
-
-  public void processControl(Object tuple)
-  {
-    // Default Implementation
-  }
 }
