@@ -19,16 +19,25 @@
 package com.datatorrent.stram.engine;
 
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.commons.lang.UnhandledException;
 
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.plan.logical.Operators.PortContextPair;
+import com.datatorrent.stram.stream.OiOStream;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -50,7 +59,7 @@ public class OiONode extends GenericNode
     super(operator, context);
   }
 
-  private class ControlSink implements Sink<Tuple>
+  private class ControlSink extends DefaultCustomControlTupleEnabledSink<Tuple>
   {
     final SweepableReservoir reservoir;
 
@@ -58,6 +67,8 @@ public class OiONode extends GenericNode
     {
       reservoir = sr;
     }
+
+    private Map<Long,LinkedHashSet<CustomControlTuple>> customControlTuples = Maps.newHashMap();
 
     @Override
     public void put(Tuple t)
@@ -82,7 +93,43 @@ public class OiONode extends GenericNode
         case END_WINDOW:
           endWindowDequeueTimes.put(reservoir, System.currentTimeMillis());
           if (--expectingEndWindows == 0) {
+
+            /* process custom control tuples here */
+
+            if (customControlTuples.get(currentWindowId) != null) {
+              for (CustomControlTuple cct : customControlTuples.get(currentWindowId)) {
+                if (((OiOStream.OiOReservoir)reservoir).getSink() instanceof CustomControlTupleEnabledSink) {
+                  if (!((CustomControlTupleEnabledSink)((OiOStream.OiOReservoir)reservoir)
+                      .getSink())
+                      .putControl((UserDefinedControlTuple)cct.getUserObject())) {
+
+                    // Operator will not handle. Propagate.
+                    for (int s = sinks.length; s-- > 0; ) {
+                      sinks[s].put(cct);
+                    }
+                    controlTupleCount++;
+                  }
+                } else {
+                  // Operator will not handle. Propagate.
+                  for (int s = sinks.length; s-- > 0; ) {
+                    sinks[s].put(cct);
+                  }
+                  controlTupleCount++;
+                }
+              }
+            }
             processEndWindow(t);
+          }
+          break;
+
+        case CUSTOM_CONTROL:
+          if (!customControlTuples.containsKey(currentWindowId)) {
+            customControlTuples.put(currentWindowId, new LinkedHashSet<CustomControlTuple>());
+          }
+          CustomControlTuple cct = ((CustomControlTuple)t);
+
+          if (!isDuplicate(customControlTuples.get(currentWindowId), cct)) {
+            customControlTuples.get(currentWindowId).add(cct);
           }
           break;
 

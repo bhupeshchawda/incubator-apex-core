@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Publisher;
 import com.datatorrent.bufferserver.packet.BeginWindowTuple;
@@ -40,6 +42,7 @@ import com.datatorrent.stram.codec.StatefulStreamCodec;
 import com.datatorrent.stram.codec.StatefulStreamCodec.DataStatePair;
 import com.datatorrent.stram.engine.ByteCounterStream;
 import com.datatorrent.stram.engine.StreamContext;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 import static java.lang.Thread.sleep;
@@ -61,6 +64,7 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
   private EventLoop eventloop;
   private int count;
   private StatefulStreamCodec<Object> statefulSerde;
+  private boolean propagate = true;
 
   public BufferServerPublisher(String sourceId, int queueCapacity)
   {
@@ -96,6 +100,28 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
 
         case END_WINDOW:
           array = EndWindowTuple.getSerializedTuple((int)t.getWindowId());
+          break;
+
+        case CUSTOM_CONTROL:
+          if (statefulSerde == null) {
+            array = com.datatorrent.bufferserver.packet.CustomControlTuple
+                .getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, serde.toByteArray(payload));
+          } else {
+            DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+            if (dsp.state != null) {
+              array = com.datatorrent.bufferserver.packet.CustomControlTuple
+                  .getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+              try {
+                while (!write(array)) {
+                  sleep(5);
+                }
+              } catch (InterruptedException ie) {
+                throw new RuntimeException(ie);
+              }
+            }
+            array = com.datatorrent.bufferserver.packet.CustomControlTuple
+                .getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, dsp.data);
+          }
           break;
 
         case END_STREAM:
@@ -143,6 +169,13 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
     } catch (InterruptedException ie) {
       throw new RuntimeException(ie);
     }
+  }
+
+  @Override
+  public boolean putControl(UserDefinedControlTuple payload)
+  {
+    put(new CustomControlTuple(payload));
+    return false;
   }
 
   /**

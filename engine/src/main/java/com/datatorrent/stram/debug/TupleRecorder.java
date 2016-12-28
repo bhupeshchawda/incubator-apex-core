@@ -44,6 +44,7 @@ import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.common.codec.JsonStreamCodec;
 import com.datatorrent.common.util.ObjectMapperString;
 import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.stram.engine.DefaultCustomControlTupleEnabledSink;
 import com.datatorrent.stram.engine.WindowGenerator;
 import com.datatorrent.stram.tuple.Tuple;
 import com.datatorrent.stram.util.FSPartFileCollection;
@@ -473,7 +474,7 @@ public class TupleRecorder
     this.stopProcedure = stopProcedure;
   }
 
-  public class RecorderSink implements Sink<Object>
+  public class RecorderSink extends DefaultCustomControlTupleEnabledSink<Object>
   {
     private final String portName;
     private int count;

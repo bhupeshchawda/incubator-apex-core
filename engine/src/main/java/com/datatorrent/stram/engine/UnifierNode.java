@@ -27,7 +27,6 @@ import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
-
 import com.datatorrent.stram.plan.logical.Operators.PortContextPair;
 
 /**
@@ -39,7 +38,7 @@ public class UnifierNode extends GenericNode
 {
   final Unifier<Object> unifier;
 
-  class UnifiedPort implements InputPort<Object>, Sink<Object>
+  class UnifiedPort extends DefaultCustomControlTupleEnabledSink<Object> implements InputPort<Object>
   {
     private int count;
 
