@@ -22,6 +22,7 @@ import com.datatorrent.api.Sink;
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
 import com.datatorrent.stram.engine.SweepableReservoir;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -74,6 +75,12 @@ public class OiOStream implements Stream
       reservoir.count++;
       sink.put(t);
     }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    put(new CustomControlTuple(payload));
   }
 
   @Override

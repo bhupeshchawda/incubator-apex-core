@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Sink;
-
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 
 /**
  * <p>MuxStream class.</p>
@@ -118,6 +118,12 @@ public class MuxStream implements Stream.MultiSinkCapableStream
     for (int i = sinks.length; i-- > 0;) {
       sinks[i].put(payload);
     }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    put(new CustomControlTuple(payload));
   }
 
   @Override

@@ -196,6 +196,12 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
+  public void putControl(Object payload)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
   public SweepableReservoir releaseReservoir(String sinkId)
   {
     BufferReservoir r = reservoirMap.remove(sinkId);
@@ -341,6 +347,10 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
             case END_WINDOW:
               //logger.debug("received {}", data);
               o = new EndWindowTuple(baseSeconds | (lastWindowId = data.getWindowId()));
+              break;
+
+            case CUSTOM_CONTROL:
+              o = processPayload(data);
               break;
 
             case END_STREAM:

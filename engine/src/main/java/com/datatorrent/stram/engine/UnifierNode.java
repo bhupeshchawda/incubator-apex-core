@@ -23,12 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.PortContext;
+import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
 
 import com.datatorrent.stram.plan.logical.Operators.PortContextPair;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 
 /**
  * <p>UnifierNode class.</p>
@@ -39,7 +41,7 @@ public class UnifierNode extends GenericNode
 {
   final Unifier<Object> unifier;
 
-  class UnifiedPort implements InputPort<Object>, Sink<Object>
+  class UnifiedPort implements InputPort<Object>, Sink<Object>, ControlSink<Object>
   {
     private int count;
 
@@ -65,6 +67,12 @@ public class UnifierNode extends GenericNode
     {
       count++;
       unifier.process(tuple);
+    }
+
+    @Override
+    public void putControl(Object payload)
+    {
+      put(new CustomControlTuple(payload));
     }
 
     @Override

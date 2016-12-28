@@ -23,12 +23,14 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang.UnhandledException;
 
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.plan.logical.Operators.PortContextPair;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -50,7 +52,7 @@ public class OiONode extends GenericNode
     super(operator, context);
   }
 
-  private class ControlSink implements Sink<Tuple>
+  private class ControlSink implements Sink<Tuple>, com.datatorrent.api.ControlSink<Tuple>
   {
     final SweepableReservoir reservoir;
 
@@ -84,6 +86,10 @@ public class OiONode extends GenericNode
           if (--expectingEndWindows == 0) {
             processEndWindow(t);
           }
+          break;
+
+        case CUSTOM_CONTROL:
+          // TODO: Implement
           break;
 
         case CHECKPOINT:
@@ -148,6 +154,12 @@ public class OiONode extends GenericNode
         default:
           throw new UnhandledException("Unrecognized Control Tuple", new IllegalArgumentException(t.toString()));
       }
+    }
+
+    @Override
+    public void putControl(Object payload)
+    {
+      put(new CustomControlTuple(payload));
     }
 
     @Override

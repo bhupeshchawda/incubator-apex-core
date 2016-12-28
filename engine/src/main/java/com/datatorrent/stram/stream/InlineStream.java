@@ -25,6 +25,7 @@ import com.datatorrent.stram.engine.AbstractReservoir;
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
 import com.datatorrent.stram.engine.SweepableReservoir;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -96,6 +97,12 @@ public class InlineStream implements Stream
       logger.debug("Interrupted", ie);
       throw new RuntimeException(ie);
     }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    put(new CustomControlTuple(payload));
   }
 
   @Override

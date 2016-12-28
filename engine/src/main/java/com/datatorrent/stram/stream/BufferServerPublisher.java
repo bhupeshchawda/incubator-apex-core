@@ -40,6 +40,7 @@ import com.datatorrent.stram.codec.StatefulStreamCodec;
 import com.datatorrent.stram.codec.StatefulStreamCodec.DataStatePair;
 import com.datatorrent.stram.engine.ByteCounterStream;
 import com.datatorrent.stram.engine.StreamContext;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 import static java.lang.Thread.sleep;
@@ -98,6 +99,25 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
           array = EndWindowTuple.getSerializedTuple((int)t.getWindowId());
           break;
 
+        case CUSTOM_CONTROL:
+          if (statefulSerde == null) {
+            array = DataTuple.getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, serde.toByteArray(payload));
+          } else {
+            DataStatePair dsp = statefulSerde.toDataStatePair(payload);
+            if (dsp.state != null) {
+              array = DataTuple.getSerializedTuple(MessageType.CODEC_STATE_VALUE, dsp.state);
+              try {
+                while (!write(array)) {
+                  sleep(5);
+                }
+              } catch (InterruptedException ie) {
+                throw new RuntimeException(ie);
+              }
+            }
+            array = DataTuple.getSerializedTuple(MessageType.CUSTOM_CONTROL_VALUE, dsp.data);
+          }
+          break;
+
         case END_STREAM:
           array = EndStreamTuple.getSerializedTuple((int)t.getWindowId());
           break;
@@ -143,6 +163,12 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
     } catch (InterruptedException ie) {
       throw new RuntimeException(ie);
     }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    put(new CustomControlTuple(payload));
   }
 
   /**

@@ -44,6 +44,7 @@ import com.datatorrent.netlet.Listener;
 import com.datatorrent.netlet.Listener.ClientListener;
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
 import static java.lang.Thread.sleep;
@@ -226,6 +227,11 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
 
         case END_WINDOW:
           array = EndWindowTuple.getSerializedTuple((int)t.getWindowId());
+          break;
+
+        case CUSTOM_CONTROL:
+          array = null;
+          // TODO: implement
           break;
 
         case END_STREAM:
@@ -475,6 +481,12 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
       write = true;
       key.selector().wakeup();
     }
+  }
+
+  @Override
+  public void putControl(Object payload)
+  {
+    put(new CustomControlTuple(payload));
   }
 
   @SuppressWarnings("SleepWhileInLoop")

@@ -228,6 +228,12 @@ public class WindowGenerator extends MuxReservoir implements Stream, Runnable
   }
 
   @Override
+  public void putControl(Object payload)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
   protected Queue getQueue()
   {
     return queue;
