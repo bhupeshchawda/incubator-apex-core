@@ -84,6 +84,17 @@ public class OiOStream implements Stream
   }
 
   @Override
+  public boolean propogateControlTuples()
+  {
+    return true;
+  }
+
+  @Override
+  public void setPropogateControlTuples(boolean propogate)
+  {
+  }
+
+  @Override
   public int getCount(boolean reset)
   {
     try {
@@ -129,6 +140,11 @@ public class OiOStream implements Stream
       } finally {
         OiOStream.this.sink = sink;
       }
+    }
+
+    public Sink<Object> getSink()
+    {
+      return OiOStream.this.sink;
     }
 
     @Override

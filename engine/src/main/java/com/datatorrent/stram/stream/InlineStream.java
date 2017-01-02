@@ -106,6 +106,17 @@ public class InlineStream implements Stream
   }
 
   @Override
+  public boolean propogateControlTuples()
+  {
+    return true;
+  }
+
+  @Override
+  public void setPropogateControlTuples(boolean propogate)
+  {
+  }
+
+  @Override
   public int getCount(boolean reset)
   {
     try {

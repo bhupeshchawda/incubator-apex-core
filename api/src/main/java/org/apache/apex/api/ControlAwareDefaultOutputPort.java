@@ -47,4 +47,10 @@ public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
   {
     return sink;
   }
+
+  public void setPropogateControlTuples(boolean propogate)
+  {
+    sink.setPropogateControlTuples(propogate);
+  }
+
 }

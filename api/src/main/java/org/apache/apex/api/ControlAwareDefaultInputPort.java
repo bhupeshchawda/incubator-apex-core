@@ -15,5 +15,16 @@ public abstract class ControlAwareDefaultInputPort<T> extends DefaultInputPort<T
     processControl(payload);
   }
 
+  @Override
+  public boolean propogateControlTuples()
+  {
+    return true;
+  }
+
+  @Override
+  public void setPropogateControlTuples(boolean propogate)
+  {
+  }
+
   public abstract void processControl(Object payload);
 }

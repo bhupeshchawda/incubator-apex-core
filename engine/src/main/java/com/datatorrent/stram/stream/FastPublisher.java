@@ -489,6 +489,17 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
     put(new CustomControlTuple(payload));
   }
 
+  @Override
+  public boolean propogateControlTuples()
+  {
+    return true;
+  }
+
+  @Override
+  public void setPropogateControlTuples(boolean propogate)
+  {
+  }
+
   @SuppressWarnings("SleepWhileInLoop")
   public void advanceWriteBuffer()
   {

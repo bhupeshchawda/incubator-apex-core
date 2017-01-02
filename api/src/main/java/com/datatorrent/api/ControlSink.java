@@ -23,7 +23,21 @@ public interface ControlSink<T> extends Sink<T>
       return 0;
     }
 
+    @Override
+    public boolean propogateControlTuples()
+    {
+      return false;
+    }
+
+    @Override
+    public void setPropogateControlTuples(boolean propogate)
+    {
+    }
   };
 
   public void putControl(Object payload);
+
+  public boolean propogateControlTuples();
+
+  public void setPropogateControlTuples(boolean propogate);
 }

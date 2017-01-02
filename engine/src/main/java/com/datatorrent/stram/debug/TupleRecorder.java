@@ -35,7 +35,6 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.Stats;
@@ -45,8 +44,8 @@ import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.common.codec.JsonStreamCodec;
 import com.datatorrent.common.util.ObjectMapperString;
 import com.datatorrent.netlet.util.Slice;
+import com.datatorrent.stram.engine.DefaultControlSink;
 import com.datatorrent.stram.engine.WindowGenerator;
-import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 import com.datatorrent.stram.util.FSPartFileCollection;
 import com.datatorrent.stram.util.SharedPubSubWebSocketClient;
@@ -475,7 +474,7 @@ public class TupleRecorder
     this.stopProcedure = stopProcedure;
   }
 
-  public class RecorderSink implements Sink<Object>, ControlSink<Object>
+  public class RecorderSink extends DefaultControlSink<Object>
   {
     private final String portName;
     private int count;
@@ -505,12 +504,6 @@ public class TupleRecorder
       } else {
         writeTuple(payload, portName);
       }
-    }
-
-    @Override
-    public void putControl(Object payload)
-    {
-      put(new CustomControlTuple(payload));
     }
 
     @Override

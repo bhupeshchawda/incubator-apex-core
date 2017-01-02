@@ -415,7 +415,8 @@ public class GenericNode extends Node<Operator>
                     }
 
                     for (int s = sinks.length; s-- > 0; ) {
-                      if (!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s])) {
+                      if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
+                        && ((ControlSink)sinks[s]).propogateControlTuples()) {
                         sinks[s].put(cct);
                       }
                     }

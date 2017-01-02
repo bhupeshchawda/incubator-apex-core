@@ -19,17 +19,23 @@
 package com.datatorrent.stram.engine;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.UnhandledException;
 
+import com.google.common.collect.Maps;
+
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.plan.logical.Operators.PortContextPair;
+import com.datatorrent.stram.stream.OiOStream;
 import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.Tuple;
 
@@ -52,7 +58,7 @@ public class OiONode extends GenericNode
     super(operator, context);
   }
 
-  private class ControlSink implements Sink<Tuple>, com.datatorrent.api.ControlSink<Tuple>
+  private class ControlSink extends DefaultControlSink<Tuple>
   {
     final SweepableReservoir reservoir;
 
@@ -60,6 +66,8 @@ public class OiONode extends GenericNode
     {
       reservoir = sr;
     }
+
+    private Map<Long,LinkedHashMap<UUID,Object>> customControlTuples = Maps.newHashMap();
 
     @Override
     public void put(Tuple t)
@@ -84,12 +92,40 @@ public class OiONode extends GenericNode
         case END_WINDOW:
           endWindowDequeueTimes.put(reservoir, System.currentTimeMillis());
           if (--expectingEndWindows == 0) {
+
+            /* process custom control tuples here */
+
+            if (customControlTuples.get(currentWindowId) != null) {
+              for (Entry<UUID, Object> idCctPair : customControlTuples.get(currentWindowId).entrySet()) {
+                ((com.datatorrent.api.ControlSink)((OiOStream.OiOReservoir)reservoir)
+                  .getSink())
+                  .putControl(idCctPair.getValue());
+              }
+            }
             processEndWindow(t);
           }
           break;
 
         case CUSTOM_CONTROL:
-          // TODO: Implement
+          if (!customControlTuples.containsKey(currentWindowId)) {
+            customControlTuples.put(currentWindowId, new LinkedHashMap<UUID, Object>());
+          }
+          CustomControlTuple cct = ((CustomControlTuple)t);
+
+          if (!customControlTuples.get(currentWindowId).containsKey(cct.getId())) {
+            customControlTuples.get(currentWindowId).put(cct.getId(), cct);
+            if (sinkPropogateControlMap.isEmpty()) {
+              processPortPropogationInfo();
+            }
+
+            for (int s = sinks.length; s-- > 0; ) {
+              if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
+                && ((com.datatorrent.api.ControlSink)sinks[s]).propogateControlTuples()) {
+                sinks[s].put(cct);
+              }
+            }
+            controlTupleCount++;
+          }
           break;
 
         case CHECKPOINT:
@@ -154,12 +190,6 @@ public class OiONode extends GenericNode
         default:
           throw new UnhandledException("Unrecognized Control Tuple", new IllegalArgumentException(t.toString()));
       }
-    }
-
-    @Override
-    public void putControl(Object payload)
-    {
-      put(new CustomControlTuple(payload));
     }
 
     @Override

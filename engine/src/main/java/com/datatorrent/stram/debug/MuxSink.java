@@ -24,16 +24,15 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.Sink;
-import com.datatorrent.stram.tuple.CustomControlTuple;
+import com.datatorrent.stram.engine.DefaultControlSink;
 
 /**
  * <p>MuxSink class.</p>
  *
  * @since 0.3.2
  */
-public class MuxSink implements Sink<Object>, ControlSink<Object>
+public class MuxSink extends DefaultControlSink<Object>
 {
   Sink<Object>[] sinks;
   private int count;
@@ -56,12 +55,6 @@ public class MuxSink implements Sink<Object>, ControlSink<Object>
     for (int i = sinks.length; i-- > 0;) {
       sinks[i].put(tuple);
     }
-  }
-
-  @Override
-  public void putControl(Object payload)
-  {
-    put(new CustomControlTuple(payload));
   }
 
   public void add(Sink<Object>... s)

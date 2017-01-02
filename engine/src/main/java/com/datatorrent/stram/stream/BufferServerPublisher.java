@@ -171,6 +171,17 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
     put(new CustomControlTuple(payload));
   }
 
+  @Override
+  public boolean propogateControlTuples()
+  {
+    return true;
+  }
+
+  @Override
+  public void setPropogateControlTuples(boolean propogate)
+  {
+  }
+
   /**
    *
    * @param context

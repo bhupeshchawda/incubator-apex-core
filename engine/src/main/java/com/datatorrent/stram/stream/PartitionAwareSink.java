@@ -20,10 +20,9 @@ package com.datatorrent.stram.stream;
 
 import java.util.Set;
 
-import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.stram.tuple.CustomControlTuple;
+import com.datatorrent.stram.engine.DefaultControlSink;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -32,7 +31,7 @@ import com.datatorrent.stram.tuple.Tuple;
  * @param <T>
  * @since 0.3.2
  */
-public class PartitionAwareSink<T> implements Sink<T>, ControlSink<T>
+public class PartitionAwareSink<T> extends DefaultControlSink<T>
 {
   private final StreamCodec<T> serde;
   private final Set<Integer> partitions;
@@ -69,12 +68,6 @@ public class PartitionAwareSink<T> implements Sink<T>, ControlSink<T>
       count++;
       output.put(payload);
     }
-  }
-
-  @Override
-  public void putControl(Object payload)
-  {
-    put((T)new CustomControlTuple(payload));
   }
 
   protected boolean canSendToOutput(T payload)
