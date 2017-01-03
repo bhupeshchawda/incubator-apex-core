@@ -2,10 +2,13 @@ package org.apache.apex.api;
 
 import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.Sink;
 
 /**
- * Created by bhupesh on 28/12/16.
+ * Default abstract implementation for {@link Operator.OutputPort} which is capable of emitting custom control tuples
+ * the {@link #emitControl(Object)} method can be used to emit control tuples onto this output port
+ * Additionally this also allows setting whether or not to enable this port to propogate control tuples
  */
 public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
 {
@@ -48,6 +51,11 @@ public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
     return sink;
   }
 
+  /**
+   * Set whether or not to propogate custom control tuples generated upstream to downstream operators
+   *
+   * @param propogate whether or not to propogate
+   */
   public void setPropogateControlTuples(boolean propogate)
   {
     sink.setPropogateControlTuples(propogate);

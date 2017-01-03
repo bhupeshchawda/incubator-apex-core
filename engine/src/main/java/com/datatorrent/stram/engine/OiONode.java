@@ -99,7 +99,7 @@ public class OiONode extends GenericNode
               for (Entry<UUID, Object> idCctPair : customControlTuples.get(currentWindowId).entrySet()) {
                 ((com.datatorrent.api.ControlSink)((OiOStream.OiOReservoir)reservoir)
                   .getSink())
-                  .putControl(idCctPair.getValue());
+                  .putControl(((CustomControlTuple)idCctPair.getValue()).getUserObject());
               }
             }
             processEndWindow(t);

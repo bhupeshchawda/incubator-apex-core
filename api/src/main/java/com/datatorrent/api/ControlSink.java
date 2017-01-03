@@ -1,7 +1,8 @@
 package com.datatorrent.api;
 
 /**
- * Created by bhupesh on 28/12/16.
+ * A {@link Sink} which supports adding control tuples
+ * Additionally allows to set and retrieve propogation information for control tuples
  */
 public interface ControlSink<T> extends Sink<T>
 {
@@ -35,9 +36,24 @@ public interface ControlSink<T> extends Sink<T>
     }
   };
 
+  /**
+   * Add a control tuple to the sink
+   *
+   * @param payload the control tuple payload
+   */
   public void putControl(Object payload);
 
+  /**
+   * Identify whether this sink allows custom control tuples to be propogated
+   *
+   * @return true if custom control tuples should be forwarded to this sink; false otherwise
+   */
   public boolean propogateControlTuples();
 
+  /**
+   * Set propogation information for custom control tuples on this sink
+   *
+   * @param propogate whether or not to forward custom control tuples to this sink
+   */
   public void setPropogateControlTuples(boolean propogate);
 }

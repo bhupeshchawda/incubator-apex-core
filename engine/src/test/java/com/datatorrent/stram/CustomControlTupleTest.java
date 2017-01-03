@@ -23,9 +23,6 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.BaseOperator;
 
-/**
- * Created by bhupesh on 28/12/16.
- */
 public class CustomControlTupleTest
 {
   public static final Logger LOG = LoggerFactory.getLogger(CustomControlTupleTest.class);
@@ -148,7 +145,7 @@ public class CustomControlTupleTest
         }
       });
 
-      lc.run(1000000); // runs for 10 seconds and quits
+      lc.run(10000); // runs for 10 seconds and quits if terminating condition not reached
 
       LOG.info("Data Tuples {} Data Index {}", numDataTuples, dataIndex);
       LOG.info("Control Tuples {} Control Index {}", numControlTuples, controlIndex);

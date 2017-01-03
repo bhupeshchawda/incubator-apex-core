@@ -368,7 +368,7 @@ public class GenericNode extends Node<Operator>
                       t.setWindowId(windowAhead);
                     }
 
-                    /* Process control tuples here */
+                    /* Emit control tuples here */
                     if (reservoirPortMap.isEmpty()) {
                       populateReservoirInputPortMap();
                     }
@@ -376,14 +376,17 @@ public class GenericNode extends Node<Operator>
                       if (customControlTuples.containsKey(currentWindowId) &&
                         customControlTuples.get(currentWindowId).containsKey(reservoirSinkPair.getKey())) {
                         if (reservoirSinkPair.getValue() instanceof ControlAwareDefaultInputPort) {
-                          for (Object o: customControlTuples.get(currentWindowId).get(reservoirSinkPair.getKey()).values()) {
-                            ((ControlSink)reservoirSinkPair.getValue()).putControl(o);
+                          for (Object o: customControlTuples.get(currentWindowId)
+                            .get(reservoirSinkPair.getKey()).values()) {
+                            ((ControlSink)reservoirSinkPair.getValue()).putControl(((CustomControlTuple)o)
+                                .getUserObject());
                           }
                         }
                       }
                     }
                     customControlTuples.clear();
 
+                    /* Now call endWindow() */
                     processEndWindow(t);
                     activeQueues.addAll(inputs.entrySet());
                     expectingBeginWindow = activeQueues.size();
@@ -400,20 +403,17 @@ public class GenericNode extends Node<Operator>
                   customControlTuples.put(currentWindowId, new HashMap<SweepableReservoir, LinkedHashMap<UUID, Object>>());
                 }
                 CustomControlTuple cct = ((CustomControlTuple)t);
-                Object payload = cct.getUserObject();
 
                 Map<SweepableReservoir,LinkedHashMap<UUID,Object>> controlTuplesThisWindow = customControlTuples.get(currentWindowId);
                 if (!controlTuplesThisWindow.containsKey(activePort)) {
                   controlTuplesThisWindow.put(activePort, new LinkedHashMap<UUID, Object>());
                 }
-
                 if (!controlTuplesThisWindow.get(activePort).containsKey(cct.getId())) {
                   controlTuplesThisWindow.get(activePort).put(cct.getId(), cct);
                   if (!delay) {
                     if (sinkPropogateControlMap.isEmpty()) {
                       processPortPropogationInfo();
                     }
-
                     for (int s = sinks.length; s-- > 0; ) {
                       if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
                         && ((ControlSink)sinks[s]).propogateControlTuples()) {
@@ -719,6 +719,10 @@ public class GenericNode extends Node<Operator>
 
   }
 
+  /**
+   * Populated the map {@link #sinkPropogateControlMap} with information from the annotations on corresponding
+   * output ports.
+   */
   protected void processPortPropogationInfo()
   {
     for (Entry<String,Sink<Object>> entry : outputs.entrySet()) {
@@ -738,6 +742,9 @@ public class GenericNode extends Node<Operator>
     }
   }
 
+  /**
+   * Populate {@link #reservoirPortMap} with information on which reservoirs are connected to which input ports
+   */
   protected void populateReservoirInputPortMap()
   {
     for (Entry<String,Operators.PortContextPair<InputPort<?>>> entry : descriptor.inputPorts.entrySet()) {
