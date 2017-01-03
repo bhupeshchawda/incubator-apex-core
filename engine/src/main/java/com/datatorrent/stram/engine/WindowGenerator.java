@@ -234,7 +234,7 @@ public class WindowGenerator extends MuxReservoir implements Stream, Runnable
   }
 
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return false;
   }

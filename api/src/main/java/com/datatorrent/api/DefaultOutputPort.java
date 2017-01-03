@@ -55,13 +55,20 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
    */
   public void emit(T tuple)
   {
+    if (verifySameThread()) {
+      getSink().put(tuple);
+    }
+  }
+
+  public boolean verifySameThread()
+  {
     // operatorThread could be null if setup() never got called.
     if (operatorThread != null && Thread.currentThread() != operatorThread) {
       // only under certain modes: enforce this
       throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
-          " is different from the operator thread " + operatorThread.getName());
+        " is different from the operator thread " + operatorThread.getName());
     }
-    getSink().put(tuple);
+    return true;
   }
 
   /**

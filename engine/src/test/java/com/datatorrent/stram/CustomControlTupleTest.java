@@ -44,7 +44,7 @@ import com.datatorrent.common.util.BaseOperator;
 public class CustomControlTupleTest
 {
   public static final Logger LOG = LoggerFactory.getLogger(CustomControlTupleTest.class);
-  private static final int TEST_FOR_NUM_WINDOWS = 5;
+  private static final int TEST_FOR_NUM_WINDOWS = 7;
   private static long controlIndex = 0;
   private static long dataIndex = 0;
   private static int numDataTuples = 0;
@@ -64,6 +64,7 @@ public class CustomControlTupleTest
     public void beginWindow(long windowId)
     {
       if (run) {
+        LOG.info("Window: {}", windowId);
         out.emitControl(new TestControlTuple(controlIndex++));
         sendControl = true;
       }
@@ -86,7 +87,7 @@ public class CustomControlTupleTest
     {
       if (run) {
         out.emitControl(new TestControlTuple(controlIndex++));
-        if (numWindows++ > TEST_FOR_NUM_WINDOWS) {
+        if (++numWindows >= TEST_FOR_NUM_WINDOWS) {
           run = false;
         }
       }
@@ -96,7 +97,6 @@ public class CustomControlTupleTest
   public static class Processor extends BaseOperator
   {
     private boolean receivedControlThisWindow = false;
-    private long currentWindowId;
 
     public final transient ControlAwareDefaultInputPort<Double> input = new ControlAwareDefaultInputPort<Double>()
     {
@@ -120,7 +120,6 @@ public class CustomControlTupleTest
     @Override
     public void beginWindow(long windowId)
     {
-      currentWindowId = windowId;
       receivedControlThisWindow = false;
     }
 

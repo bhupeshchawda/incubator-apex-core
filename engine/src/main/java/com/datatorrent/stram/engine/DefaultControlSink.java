@@ -41,7 +41,7 @@ public abstract class DefaultControlSink<T> implements ControlSink<T>
    * {@inheritDoc}
    */
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return propogateControlTuples;
   }

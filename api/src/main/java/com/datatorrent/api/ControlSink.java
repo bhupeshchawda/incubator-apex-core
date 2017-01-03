@@ -43,7 +43,7 @@ public interface ControlSink<T> extends Sink<T>
     }
 
     @Override
-    public boolean propogateControlTuples()
+    public boolean isPropogateControlTuples()
     {
       return false;
     }
@@ -66,7 +66,7 @@ public interface ControlSink<T> extends Sink<T>
    *
    * @return true if custom control tuples should be forwarded to this sink; false otherwise
    */
-  public boolean propogateControlTuples();
+  public boolean isPropogateControlTuples();
 
   /**
    * Set propogation information for custom control tuples on this sink

@@ -231,7 +231,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
 
         case CUSTOM_CONTROL:
           array = null;
-          // TODO: implement
+          // TODO implement
           break;
 
         case END_STREAM:
@@ -490,7 +490,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
   }
 
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return true;
   }

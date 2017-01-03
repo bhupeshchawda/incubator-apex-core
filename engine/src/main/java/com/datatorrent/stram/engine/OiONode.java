@@ -120,7 +120,7 @@ public class OiONode extends GenericNode
 
             for (int s = sinks.length; s-- > 0; ) {
               if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
-                && ((com.datatorrent.api.ControlSink)sinks[s]).propogateControlTuples()) {
+                  && ((com.datatorrent.api.ControlSink)sinks[s]).isPropogateControlTuples()) {
                 sinks[s].put(cct);
               }
             }

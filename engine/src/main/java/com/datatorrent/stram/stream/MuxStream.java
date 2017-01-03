@@ -127,7 +127,7 @@ public class MuxStream implements Stream.MultiSinkCapableStream
   }
 
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return true;
   }

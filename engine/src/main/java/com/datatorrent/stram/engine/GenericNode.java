@@ -374,10 +374,10 @@ public class GenericNode extends Node<Operator>
                     }
                     for (Entry<SweepableReservoir,Sink> reservoirSinkPair: reservoirPortMap.entrySet()) {
                       if (customControlTuples.containsKey(currentWindowId) &&
-                        customControlTuples.get(currentWindowId).containsKey(reservoirSinkPair.getKey())) {
+                          customControlTuples.get(currentWindowId).containsKey(reservoirSinkPair.getKey())) {
                         if (reservoirSinkPair.getValue() instanceof ControlAwareDefaultInputPort) {
                           for (Object o: customControlTuples.get(currentWindowId)
-                            .get(reservoirSinkPair.getKey()).values()) {
+                              .get(reservoirSinkPair.getKey()).values()) {
                             ((ControlSink)reservoirSinkPair.getValue()).putControl(((CustomControlTuple)o)
                                 .getUserObject());
                           }
@@ -416,7 +416,7 @@ public class GenericNode extends Node<Operator>
                     }
                     for (int s = sinks.length; s-- > 0; ) {
                       if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
-                        && ((ControlSink)sinks[s]).propogateControlTuples()) {
+                          && ((ControlSink)sinks[s]).isPropogateControlTuples()) {
                         sinks[s].put(cct);
                       }
                     }

@@ -84,7 +84,7 @@ public class OiOStream implements Stream
   }
 
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return true;
   }

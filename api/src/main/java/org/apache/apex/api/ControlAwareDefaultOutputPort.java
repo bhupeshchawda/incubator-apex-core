@@ -20,12 +20,11 @@ package org.apache.apex.api;
 
 import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.Sink;
 
 /**
- * Default abstract implementation for {@link Operator.OutputPort} which is capable of emitting custom control tuples
- * the {@link #emitControl(Object)} method can be used to emit control tuples onto this output port
+ * Default abstract implementation for OutputPort which is capable of emitting custom control tuples
+ * the {@link #emitControl(ControlTuple)} method can be used to emit control tuples onto this output port
  * Additionally this also allows setting whether or not to enable this port to propogate control tuples
  */
 public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
@@ -37,18 +36,10 @@ public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
     sink = ControlSink.BLACKHOLE;
   }
 
-  public void emitControl(Object tuple)
+  public void emitControl(ControlTuple tuple)
   {
-    // operatorThread could be null if setup() never got called.
-    if (operatorThread != null && Thread.currentThread() != operatorThread) {
-      // only under certain modes: enforce this
-      throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
-        " is different from the operator thread " + operatorThread.getName());
-    }
-    if (tuple instanceof ControlTuple) {
+    if (verifySameThread()) {
       sink.putControl(tuple);
-    } else {
-      throw new IllegalArgumentException("Expecting an instance of ControlTuple");
     }
   }
 

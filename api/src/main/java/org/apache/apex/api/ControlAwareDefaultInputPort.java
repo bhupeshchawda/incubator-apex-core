@@ -20,10 +20,9 @@ package org.apache.apex.api;
 
 import com.datatorrent.api.ControlSink;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
 
 /**
- * Default abstract implementation for {@link Operator.InputPort} which is capable of processing custom control tuples
+ * Default abstract implementation for InputPort which is capable of processing custom control tuples
  */
 public abstract class ControlAwareDefaultInputPort<T> extends DefaultInputPort<T> implements ControlSink<T>
 {
@@ -38,7 +37,7 @@ public abstract class ControlAwareDefaultInputPort<T> extends DefaultInputPort<T
    * {@inheritDoc}
    */
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return true;
   }

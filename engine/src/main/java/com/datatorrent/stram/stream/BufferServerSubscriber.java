@@ -203,7 +203,7 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
   }
 
   @Override
-  public boolean propogateControlTuples()
+  public boolean isPropogateControlTuples()
   {
     return false;
   }
