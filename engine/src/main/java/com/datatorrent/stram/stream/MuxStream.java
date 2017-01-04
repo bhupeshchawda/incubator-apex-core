@@ -41,6 +41,7 @@ public class MuxStream implements Stream.MultiSinkCapableStream
   @SuppressWarnings("VolatileArrayField")
   private volatile Sink<Object>[] sinks = NO_SINKS;
   private int count;
+  private boolean propagate = true;
 
   /**
    *
@@ -129,12 +130,13 @@ public class MuxStream implements Stream.MultiSinkCapableStream
   @Override
   public boolean isPropogateControlTuples()
   {
-    return true;
+    return propagate;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropogateControlTuples(boolean propagate)
   {
+    this.propagate = propagate;
   }
 
   @Override

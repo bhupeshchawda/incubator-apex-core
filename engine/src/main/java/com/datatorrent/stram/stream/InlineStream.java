@@ -39,6 +39,7 @@ public class InlineStream implements Stream
 {
   private int count;
   private AbstractReservoir reservoir;
+  private boolean propagate = true;
 
   public InlineStream(int capacity)
   {
@@ -108,12 +109,13 @@ public class InlineStream implements Stream
   @Override
   public boolean isPropogateControlTuples()
   {
-    return true;
+    return propagate;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropogateControlTuples(boolean propagate)
   {
+    this.propagate = propagate;
   }
 
   @Override

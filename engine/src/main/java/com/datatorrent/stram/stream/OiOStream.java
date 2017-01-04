@@ -44,6 +44,7 @@ public class OiOStream implements Stream
   private Sink<Tuple> control;
   private int count;
   private OiOReservoir reservoir = new OiOReservoir();
+  private boolean propagate = true;
 
   @Override
   public void setup(StreamContext context)
@@ -86,12 +87,13 @@ public class OiOStream implements Stream
   @Override
   public boolean isPropogateControlTuples()
   {
-    return true;
+    return propagate;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropogateControlTuples(boolean propagate)
   {
+    this.propagate = propagate;
   }
 
   @Override

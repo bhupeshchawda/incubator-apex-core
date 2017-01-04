@@ -62,6 +62,7 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
   private EventLoop eventloop;
   private int count;
   private StatefulStreamCodec<Object> statefulSerde;
+  private boolean propagate = true;
 
   public BufferServerPublisher(String sourceId, int queueCapacity)
   {
@@ -174,12 +175,13 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
   @Override
   public boolean isPropogateControlTuples()
   {
-    return true;
+    return propagate;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropogateControlTuples(boolean propagate)
   {
+    this.propagate = propagate;
   }
 
   /**
