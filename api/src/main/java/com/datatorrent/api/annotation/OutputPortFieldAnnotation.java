@@ -53,10 +53,10 @@ public @interface OutputPortFieldAnnotation
   public boolean schemaRequired() default false;
 
   /**
-   * Whether or not to propogate custom control tuples to this Output port
+   * Whether or not to propagate custom control tuples to this Output port
    *
-   * @return true if custom control tuples should be propogated to this port; false otherwise
+   * @return true if custom control tuples should be propagated to this port; false otherwise
    */
-  public boolean propogateControlTuples() default true;
+  public boolean propagateControlTuples() default true;
 }
 

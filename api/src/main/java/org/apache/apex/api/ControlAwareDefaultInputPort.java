@@ -37,7 +37,7 @@ public abstract class ControlAwareDefaultInputPort<T> extends DefaultInputPort<T
    * {@inheritDoc}
    */
   @Override
-  public boolean isPropogateControlTuples()
+  public boolean isPropagateControlTuples()
   {
     return true;
   }
@@ -46,7 +46,7 @@ public abstract class ControlAwareDefaultInputPort<T> extends DefaultInputPort<T
    * {@inheritDoc}
    */
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropagateControlTuples(boolean propagate)
   {
   }
 

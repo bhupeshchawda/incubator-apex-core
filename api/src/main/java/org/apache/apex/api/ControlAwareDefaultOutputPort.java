@@ -25,7 +25,7 @@ import com.datatorrent.api.Sink;
 /**
  * Default abstract implementation for OutputPort which is capable of emitting custom control tuples
  * the {@link #emitControl(ControlTuple)} method can be used to emit control tuples onto this output port
- * Additionally this also allows setting whether or not to enable this port to propogate control tuples
+ * Additionally this also allows setting whether or not to enable this port to propagate control tuples
  */
 public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
 {
@@ -61,13 +61,13 @@ public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
   }
 
   /**
-   * Set whether or not to propogate custom control tuples generated upstream to downstream operators
+   * Set whether or not to propagate custom control tuples generated upstream to downstream operators
    *
-   * @param propogate whether or not to propogate
+   * @param propagate whether or not to propagate
    */
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropagateControlTuples(boolean propagate)
   {
-    sink.setPropogateControlTuples(propogate);
+    sink.setPropagateControlTuples(propagate);
   }
 
 }

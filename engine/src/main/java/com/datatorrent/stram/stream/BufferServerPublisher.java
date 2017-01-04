@@ -173,13 +173,13 @@ public class BufferServerPublisher extends Publisher implements ByteCounterStrea
   }
 
   @Override
-  public boolean isPropogateControlTuples()
+  public boolean isPropagateControlTuples()
   {
     return propagate;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propagate)
+  public void setPropagateControlTuples(boolean propagate)
   {
     this.propagate = propagate;
   }

@@ -43,13 +43,13 @@ public interface ControlSink<T> extends Sink<T>
     }
 
     @Override
-    public boolean isPropogateControlTuples()
+    public boolean isPropagateControlTuples()
     {
       return false;
     }
 
     @Override
-    public void setPropogateControlTuples(boolean propogate)
+    public void setPropagateControlTuples(boolean propagate)
     {
     }
   };
@@ -62,16 +62,16 @@ public interface ControlSink<T> extends Sink<T>
   public void putControl(Object payload);
 
   /**
-   * Identify whether this sink allows custom control tuples to be propogated
+   * Identify whether this sink allows custom control tuples to be propagated
    *
    * @return true if custom control tuples should be forwarded to this sink; false otherwise
    */
-  public boolean isPropogateControlTuples();
+  public boolean isPropagateControlTuples();
 
   /**
-   * Set propogation information for custom control tuples on this sink
+   * Set propagation information for custom control tuples on this sink
    *
-   * @param propogate whether or not to forward custom control tuples to this sink
+   * @param propagate whether or not to forward custom control tuples to this sink
    */
-  public void setPropogateControlTuples(boolean propogate);
+  public void setPropagateControlTuples(boolean propagate);
 }

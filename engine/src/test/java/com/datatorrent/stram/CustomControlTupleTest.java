@@ -57,7 +57,7 @@ public class CustomControlTupleTest
   public static class Generator extends BaseOperator implements InputOperator
   {
     private boolean sendControl = false;
-    @OutputPortFieldAnnotation(propogateControlTuples = false)
+    @OutputPortFieldAnnotation(propagateControlTuples = false)
     public final transient ControlAwareDefaultOutputPort<Double> out = new ControlAwareDefaultOutputPort<>();
 
     @Override

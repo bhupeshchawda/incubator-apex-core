@@ -76,7 +76,7 @@ public class GenericNode extends Node<Operator>
 {
   protected final HashMap<String, SweepableReservoir> inputs = new HashMap<>();
   protected ArrayList<DeferredInputConnection> deferredInputConnections = new ArrayList<>();
-  protected Map<Sink,Boolean> sinkPropogateControlMap = Maps.newHashMap();
+  protected Map<Sink,Boolean> sinkPropagateControlMap = Maps.newHashMap();
   protected Map<SweepableReservoir,Sink> reservoirPortMap = Maps.newHashMap();
 
   @Override
@@ -411,12 +411,12 @@ public class GenericNode extends Node<Operator>
                 if (!controlTuplesThisWindow.get(activePort).containsKey(cct.getId())) {
                   controlTuplesThisWindow.get(activePort).put(cct.getId(), cct);
                   if (!delay) {
-                    if (sinkPropogateControlMap.isEmpty()) {
+                    if (sinkPropagateControlMap.isEmpty()) {
                       processPortPropogationInfo();
                     }
                     for (int s = sinks.length; s-- > 0; ) {
-                      if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
-                          && ((ControlSink)sinks[s]).isPropogateControlTuples()) {
+                      if ((!sinkPropagateControlMap.containsKey(sinks[s]) || sinkPropagateControlMap.get(sinks[s]))
+                          && ((ControlSink)sinks[s]).isPropagateControlTuples()) {
                         sinks[s].put(cct);
                       }
                     }
@@ -720,7 +720,7 @@ public class GenericNode extends Node<Operator>
   }
 
   /**
-   * Populated the map {@link #sinkPropogateControlMap} with information from the annotations on corresponding
+   * Populated the map {@link #sinkPropagateControlMap} with information from the annotations on corresponding
    * output ports.
    */
   protected void processPortPropogationInfo()
@@ -733,7 +733,7 @@ public class GenericNode extends Node<Operator>
             if (field.getName().equals(portName)) {
               OutputPortFieldAnnotation annotation = field.getAnnotation(OutputPortFieldAnnotation.class);
               if (annotation != null) {
-                sinkPropogateControlMap.put(s, annotation.propogateControlTuples());
+                sinkPropagateControlMap.put(s, annotation.propagateControlTuples());
               }
             }
           }

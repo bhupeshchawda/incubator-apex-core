@@ -26,7 +26,7 @@ import com.datatorrent.stram.tuple.CustomControlTuple;
  */
 public abstract class DefaultControlSink<T> implements ControlSink<T>
 {
-  private boolean propogateControlTuples = true; // default
+  private boolean propagateControlTuples = true; // default
 
   /**
    * {@inheritDoc}
@@ -41,18 +41,18 @@ public abstract class DefaultControlSink<T> implements ControlSink<T>
    * {@inheritDoc}
    */
   @Override
-  public boolean isPropogateControlTuples()
+  public boolean isPropagateControlTuples()
   {
-    return propogateControlTuples;
+    return propagateControlTuples;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropagateControlTuples(boolean propagate)
   {
-    this.propogateControlTuples = propogate;
+    this.propagateControlTuples = propagate;
   }
 
 }

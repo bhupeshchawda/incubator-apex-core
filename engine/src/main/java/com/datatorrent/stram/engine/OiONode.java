@@ -114,13 +114,13 @@ public class OiONode extends GenericNode
 
           if (!customControlTuples.get(currentWindowId).containsKey(cct.getId())) {
             customControlTuples.get(currentWindowId).put(cct.getId(), cct);
-            if (sinkPropogateControlMap.isEmpty()) {
+            if (sinkPropagateControlMap.isEmpty()) {
               processPortPropogationInfo();
             }
 
             for (int s = sinks.length; s-- > 0; ) {
-              if ((!sinkPropogateControlMap.containsKey(sinks[s]) || sinkPropogateControlMap.get(sinks[s]))
-                  && ((com.datatorrent.api.ControlSink)sinks[s]).isPropogateControlTuples()) {
+              if ((!sinkPropagateControlMap.containsKey(sinks[s]) || sinkPropagateControlMap.get(sinks[s]))
+                  && ((com.datatorrent.api.ControlSink)sinks[s]).isPropagateControlTuples()) {
                 sinks[s].put(cct);
               }
             }

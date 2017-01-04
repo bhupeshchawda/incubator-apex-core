@@ -490,13 +490,13 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
   }
 
   @Override
-  public boolean isPropogateControlTuples()
+  public boolean isPropagateControlTuples()
   {
     return true;
   }
 
   @Override
-  public void setPropogateControlTuples(boolean propogate)
+  public void setPropagateControlTuples(boolean propagate)
   {
   }
 
