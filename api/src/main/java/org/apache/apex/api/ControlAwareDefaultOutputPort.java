@@ -18,46 +18,37 @@
  */
 package org.apache.apex.api;
 
-import com.datatorrent.api.ControlSink;
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Sink;
 
 /**
  * Default abstract implementation for OutputPort which is capable of emitting custom control tuples
- * the {@link #emitControl(ControlTuple)} method can be used to emit control tuples onto this output port
+ * the {@link #emitControl(UserDefinedControlTuple)} method can be used to emit control tuples onto this output port
  * Additionally this also allows setting whether or not to enable this port to propagate control tuples
  */
 public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
 {
-  private ControlSink<Object> sink;
-
   public ControlAwareDefaultOutputPort()
   {
-    sink = ControlSink.BLACKHOLE;
+    sink = CustomControlTupleEnabledSink.BLACKHOLE;
   }
 
-  public void emitControl(ControlTuple tuple)
+  public void emitControl(UserDefinedControlTuple tuple)
   {
-    if (verifySameThread()) {
-      sink.putControl(tuple);
-    }
+    verifyOperatorThread();
+    ((CustomControlTupleEnabledSink)sink).putControl(tuple);
   }
 
   public boolean isConnected()
   {
-    return sink != Sink.BLACKHOLE;
+    return sink != CustomControlTupleEnabledSink.BLACKHOLE;
   }
 
   @Override
   public void setSink(Sink<Object> s)
   {
-    this.sink = (ControlSink<Object>)(s == null ? ControlSink.BLACKHOLE : s);
-  }
-
-  @Override
-  public ControlSink<Object> getSink()
-  {
-    return sink;
+    this.sink = (s == null ? CustomControlTupleEnabledSink.BLACKHOLE : s);
   }
 
   /**
@@ -67,7 +58,7 @@ public class ControlAwareDefaultOutputPort<T> extends DefaultOutputPort<T>
    */
   public void setPropagateControlTuples(boolean propagate)
   {
-    sink.setPropagateControlTuples(propagate);
+    ((CustomControlTupleEnabledSink)sink).setPropagateControlTuples(propagate);
   }
 
 }

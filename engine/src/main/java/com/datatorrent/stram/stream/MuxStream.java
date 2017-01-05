@@ -24,6 +24,8 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.stram.engine.Stream;
 import com.datatorrent.stram.engine.StreamContext;
@@ -122,7 +124,7 @@ public class MuxStream implements Stream.MultiSinkCapableStream
   }
 
   @Override
-  public void putControl(Object payload)
+  public void putControl(UserDefinedControlTuple payload)
   {
     put(new CustomControlTuple(payload));
   }

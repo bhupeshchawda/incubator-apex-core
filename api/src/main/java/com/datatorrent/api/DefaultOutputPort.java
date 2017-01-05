@@ -38,14 +38,14 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
   private static final Logger logger = LoggerFactory.getLogger(DefaultOutputPort.class);
 
   protected transient Sink<Object> sink;
-  protected transient Thread operatorThread;
+  private transient Thread operatorThread;
 
   /**
    * <p>Constructor for DefaultOutputPort.</p>
    */
   public DefaultOutputPort()
   {
-    this.sink = Sink.BLACKHOLE;
+    this.sink = CustomControlTupleEnabledSink.BLACKHOLE;
   }
 
   /**
@@ -55,12 +55,11 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
    */
   public void emit(T tuple)
   {
-    if (verifySameThread()) {
-      getSink().put(tuple);
-    }
+    verifyOperatorThread();
+    sink.put(tuple);
   }
 
-  public boolean verifySameThread()
+  protected void verifyOperatorThread()
   {
     // operatorThread could be null if setup() never got called.
     if (operatorThread != null && Thread.currentThread() != operatorThread) {
@@ -68,7 +67,6 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
       throw new IllegalStateException("Current thread " + Thread.currentThread().getName() +
         " is different from the operator thread " + operatorThread.getName());
     }
-    return true;
   }
 
   /**
@@ -90,7 +88,7 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
    */
   public boolean isConnected()
   {
-    return sink != Sink.BLACKHOLE;
+    return sink != CustomControlTupleEnabledSink.BLACKHOLE;
   }
 
   /**
@@ -120,7 +118,7 @@ public class DefaultOutputPort<T> implements Operator.OutputPort<T>
   {
   }
 
-  public Sink<Object> getSink()
+  protected Sink<Object> getSink()
   {
     return sink;
   }

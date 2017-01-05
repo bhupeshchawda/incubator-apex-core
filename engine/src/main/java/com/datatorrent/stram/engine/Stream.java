@@ -19,7 +19,7 @@
 package com.datatorrent.stram.engine;
 
 import com.datatorrent.api.Component;
-import com.datatorrent.api.ControlSink;
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Sink;
 
@@ -33,7 +33,7 @@ import com.datatorrent.api.Sink;
 /*
  * Provides basic interface for a stream object. Stram, StramChild work via this interface
  */
-public interface Stream extends Component<StreamContext>, ActivationListener<StreamContext>, Sink<Object>, ControlSink<Object>
+public interface Stream extends Component<StreamContext>, ActivationListener<StreamContext>, Sink<Object>, CustomControlTupleEnabledSink<Object>
 {
   public interface MultiSinkCapableStream extends Stream
   {

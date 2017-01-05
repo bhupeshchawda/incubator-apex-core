@@ -27,10 +27,12 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.commons.lang.UnhandledException;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Sink;
@@ -58,7 +60,7 @@ public class OiONode extends GenericNode
     super(operator, context);
   }
 
-  private class ControlSink extends DefaultControlSink<Tuple>
+  private class ControlSink extends DefaultCustomControlTupleEnabledSink<Tuple>
   {
     final SweepableReservoir reservoir;
 
@@ -97,9 +99,9 @@ public class OiONode extends GenericNode
 
             if (customControlTuples.get(currentWindowId) != null) {
               for (Entry<UUID, Object> idCctPair : customControlTuples.get(currentWindowId).entrySet()) {
-                ((com.datatorrent.api.ControlSink)((OiOStream.OiOReservoir)reservoir)
+                ((CustomControlTupleEnabledSink)((OiOStream.OiOReservoir)reservoir)
                   .getSink())
-                  .putControl(((CustomControlTuple)idCctPair.getValue()).getUserObject());
+                  .putControl((UserDefinedControlTuple)((CustomControlTuple)idCctPair.getValue()).getUserObject());
               }
             }
             processEndWindow(t);
@@ -120,7 +122,7 @@ public class OiONode extends GenericNode
 
             for (int s = sinks.length; s-- > 0; ) {
               if ((!sinkPropagateControlMap.containsKey(sinks[s]) || sinkPropagateControlMap.get(sinks[s]))
-                  && ((com.datatorrent.api.ControlSink)sinks[s]).isPropagateControlTuples()) {
+                  && ((CustomControlTupleEnabledSink)sinks[s]).isPropagateControlTuples()) {
                 sinks[s].put(cct);
               }
             }

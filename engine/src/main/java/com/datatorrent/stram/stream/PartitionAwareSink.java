@@ -22,7 +22,7 @@ import java.util.Set;
 
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.stram.engine.DefaultControlSink;
+import com.datatorrent.stram.engine.DefaultCustomControlTupleEnabledSink;
 import com.datatorrent.stram.tuple.Tuple;
 
 /**
@@ -31,7 +31,7 @@ import com.datatorrent.stram.tuple.Tuple;
  * @param <T>
  * @since 0.3.2
  */
-public class PartitionAwareSink<T> extends DefaultControlSink<T>
+public class PartitionAwareSink<T> extends DefaultCustomControlTupleEnabledSink<T>
 {
   private final StreamCodec<T> serde;
   private final Set<Integer> partitions;

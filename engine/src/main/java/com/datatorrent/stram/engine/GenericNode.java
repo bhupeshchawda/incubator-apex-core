@@ -34,13 +34,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.apex.api.ControlAwareDefaultInputPort;
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.commons.lang.UnhandledException;
 import org.apache.hadoop.util.ReflectionUtils;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.ControlSink;
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.api.Operator.InputPort;
@@ -378,8 +379,8 @@ public class GenericNode extends Node<Operator>
                         if (reservoirSinkPair.getValue() instanceof ControlAwareDefaultInputPort) {
                           for (Object o: customControlTuples.get(currentWindowId)
                               .get(reservoirSinkPair.getKey()).values()) {
-                            ((ControlSink)reservoirSinkPair.getValue()).putControl(((CustomControlTuple)o)
-                                .getUserObject());
+                            ((CustomControlTupleEnabledSink)reservoirSinkPair.getValue())
+                                .putControl((UserDefinedControlTuple)((CustomControlTuple)o).getUserObject());
                           }
                         }
                       }
@@ -416,7 +417,7 @@ public class GenericNode extends Node<Operator>
                     }
                     for (int s = sinks.length; s-- > 0; ) {
                       if ((!sinkPropagateControlMap.containsKey(sinks[s]) || sinkPropagateControlMap.get(sinks[s]))
-                          && ((ControlSink)sinks[s]).isPropagateControlTuples()) {
+                          && ((CustomControlTupleEnabledSink)sinks[s]).isPropagateControlTuples()) {
                         sinks[s].put(cct);
                       }
                     }

@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 import com.datatorrent.api.Sink;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.bufferserver.client.Subscriber;
@@ -197,7 +199,7 @@ public class BufferServerSubscriber extends Subscriber implements ByteCounterStr
   }
 
   @Override
-  public void putControl(Object payload)
+  public void putControl(UserDefinedControlTuple payload)
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }

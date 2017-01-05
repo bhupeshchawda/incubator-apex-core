@@ -28,6 +28,8 @@ import java.nio.channels.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Output;
@@ -484,7 +486,7 @@ public class FastPublisher extends Kryo implements ClientListener, Stream
   }
 
   @Override
-  public void putControl(Object payload)
+  public void putControl(UserDefinedControlTuple payload)
   {
     put(new CustomControlTuple(payload));
   }

@@ -18,13 +18,15 @@
  */
 package com.datatorrent.api;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 /**
  * A {@link Sink} which supports adding control tuples
  * Additionally allows to set and retrieve propogation information for control tuples
  */
-public interface ControlSink<T> extends Sink<T>
+public interface CustomControlTupleEnabledSink<T> extends Sink<T>
 {
-  public static final ControlSink<Object> BLACKHOLE = new ControlSink<Object>()
+  public static final CustomControlTupleEnabledSink<Object> BLACKHOLE = new CustomControlTupleEnabledSink<Object>()
   {
     @Override
     public void put(Object tuple)
@@ -32,7 +34,7 @@ public interface ControlSink<T> extends Sink<T>
     }
 
     @Override
-    public void putControl(Object payload)
+    public void putControl(UserDefinedControlTuple payload)
     {
     }
 
@@ -59,7 +61,7 @@ public interface ControlSink<T> extends Sink<T>
    *
    * @param payload the control tuple payload
    */
-  public void putControl(Object payload);
+  public void putControl(UserDefinedControlTuple payload);
 
   /**
    * Identify whether this sink allows custom control tuples to be propagated

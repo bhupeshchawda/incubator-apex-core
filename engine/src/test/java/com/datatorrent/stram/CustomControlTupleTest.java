@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.apex.api.ControlAwareDefaultInputPort;
 import org.apache.apex.api.ControlAwareDefaultOutputPort;
-import org.apache.apex.api.ControlTuple;
+import org.apache.apex.api.UserDefinedControlTuple;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
@@ -110,7 +110,7 @@ public class CustomControlTupleTest
       }
 
       @Override
-      public void processControl(Object tuple)
+      public void processControl(UserDefinedControlTuple tuple)
       {
         numControlTuples++;
         receivedControlThisWindow = true;
@@ -175,7 +175,7 @@ public class CustomControlTupleTest
     }
   }
 
-  public static class TestControlTuple implements ControlTuple
+  public static class TestControlTuple implements UserDefinedControlTuple
   {
     public long i;
 

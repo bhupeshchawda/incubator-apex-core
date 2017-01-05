@@ -18,13 +18,15 @@
  */
 package com.datatorrent.stram.engine;
 
-import com.datatorrent.api.ControlSink;
+import org.apache.apex.api.UserDefinedControlTuple;
+
+import com.datatorrent.api.CustomControlTupleEnabledSink;
 import com.datatorrent.stram.tuple.CustomControlTuple;
 
 /**
- * A default implementation for {@link ControlSink}
+ * A default implementation for {@link CustomControlTupleEnabledSink}
  */
-public abstract class DefaultControlSink<T> implements ControlSink<T>
+public abstract class DefaultCustomControlTupleEnabledSink<T> implements CustomControlTupleEnabledSink<T>
 {
   private boolean propagateControlTuples = true; // default
 
@@ -32,7 +34,7 @@ public abstract class DefaultControlSink<T> implements ControlSink<T>
    * {@inheritDoc}
    */
   @Override
-  public void putControl(Object payload)
+  public void putControl(UserDefinedControlTuple payload)
   {
     put((T)new CustomControlTuple(payload));
   }

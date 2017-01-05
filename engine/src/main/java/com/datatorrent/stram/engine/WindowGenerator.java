@@ -25,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.apex.api.UserDefinedControlTuple;
+
 import com.datatorrent.bufferserver.packet.MessageType;
 import com.datatorrent.common.util.ScheduledExecutorService;
 import com.datatorrent.netlet.util.CircularBuffer;
@@ -228,7 +230,7 @@ public class WindowGenerator extends MuxReservoir implements Stream, Runnable
   }
 
   @Override
-  public void putControl(Object payload)
+  public void putControl(UserDefinedControlTuple payload)
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }

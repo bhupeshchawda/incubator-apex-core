@@ -38,7 +38,7 @@ public class UnifierNode extends GenericNode
 {
   final Unifier<Object> unifier;
 
-  class UnifiedPort extends DefaultControlSink<Object> implements InputPort<Object>
+  class UnifiedPort extends DefaultCustomControlTupleEnabledSink<Object> implements InputPort<Object>
   {
     private int count;
 

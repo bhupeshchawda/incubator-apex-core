@@ -25,14 +25,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.stram.engine.DefaultControlSink;
+import com.datatorrent.stram.engine.DefaultCustomControlTupleEnabledSink;
 
 /**
  * <p>MuxSink class.</p>
  *
  * @since 0.3.2
  */
-public class MuxSink extends DefaultControlSink<Object>
+public class MuxSink extends DefaultCustomControlTupleEnabledSink<Object>
 {
   Sink<Object>[] sinks;
   private int count;
