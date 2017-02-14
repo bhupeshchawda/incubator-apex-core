@@ -57,6 +57,7 @@ public class CustomControlTupleTest
   private static boolean run = true;
   private static boolean endApp = false;
   private static long endingWindowId = 0;
+  private static boolean immediate = false;
 
   @Before
   public void starting()
@@ -83,7 +84,7 @@ public class CustomControlTupleTest
     {
       currentWindowId = windowId;
       if (run) {
-        out.emitControl(new TestControlTuple(controlIndex++));
+        out.emitControl(new TestControlTuple(controlIndex++, immediate));
         sendControl = true;
       }
     }
@@ -94,7 +95,7 @@ public class CustomControlTupleTest
       if (run) {
         out.emit(new Double(dataIndex++));
         if (sendControl) {
-          out.emitControl(new TestControlTuple(controlIndex++));
+          out.emitControl(new TestControlTuple(controlIndex++, immediate));
           sendControl = false;
         }
       }
@@ -104,7 +105,7 @@ public class CustomControlTupleTest
     public void endWindow()
     {
       if (run) {
-        out.emitControl(new TestControlTuple(controlIndex++));
+        out.emitControl(new TestControlTuple(controlIndex++, immediate));
         if (++numWindows >= TEST_FOR_NUM_WINDOWS) {
           run = false;
           endingWindowId = currentWindowId;
@@ -267,11 +268,11 @@ public class CustomControlTupleTest
         }
       });
 
-      lc.run(10000); // runs for 10 seconds and quits if terminating condition not reached
+      lc.run(1000000); // runs for 10 seconds and quits if terminating condition not reached
 
       Assert.assertTrue("Incorrect Data Tuples", numDataTuples == dataIndex); ;
       Assert.assertTrue("Incorrect Control Tuples", numControlTuples == controlIndex);
-      Assert.assertTrue("Data tuples received after control tuples in window", dataAfterControl == 0);
+//      Assert.assertTrue("Data tuples received after control tuples in window", dataAfterControl == 0);
 
     } catch (ConstraintViolationException e) {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
@@ -281,39 +282,53 @@ public class CustomControlTupleTest
   @Test
   public void testDefaultPropagation() throws Exception
   {
+    immediate = false;
+    testApp(new Application1());
+    immediate = true;
     testApp(new Application1());
   }
 
   @Test
   public void testExplicitPropagation() throws Exception
   {
+    immediate = false;
+    testApp(new Application2());
+    immediate = true;
     testApp(new Application2());
   }
 
   @Test
   public void testDuplicateControlTuples() throws Exception
   {
+    immediate = false;
+    testApp(new Application3());
+    immediate = true;
     testApp(new Application3());
   }
 
   @Test
   public void testThreadLocal() throws Exception
   {
+    immediate = false;
+    testApp(new Application4());
+    immediate = true;
     testApp(new Application4());
   }
 
   public static class TestControlTuple implements UserDefinedControlTuple
   {
     public long data;
+    public boolean immediate;
 
     public TestControlTuple()
     {
       data = 0;
     }
 
-    public TestControlTuple(long data)
+    public TestControlTuple(long data, boolean immediate)
     {
       this.data = data;
+      this.immediate = immediate;
     }
 
     @Override
@@ -329,6 +344,16 @@ public class CustomControlTupleTest
     public String toString()
     {
       return data + "";
+    }
+
+    @Override
+    public DeliveryType getDeliveryType()
+    {
+      if (immediate) {
+        return DeliveryType.IMMEDIATE;
+      } else {
+        return DeliveryType.END_WINDOW;
+      }
     }
   }
 }

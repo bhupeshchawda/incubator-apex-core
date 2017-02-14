@@ -18,6 +18,11 @@
  */
 package com.datatorrent.stram.tuple;
 
+import java.util.UUID;
+
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+
 import com.datatorrent.bufferserver.packet.MessageType;
 
 /**
@@ -27,6 +32,8 @@ import com.datatorrent.bufferserver.packet.MessageType;
 public class CustomControlTuple extends Tuple
 {
   private Object userObject;
+  @FieldSerializer.Bind(JavaSerializer.class)
+  private UUID uid;
 
   public CustomControlTuple()
   {
@@ -37,10 +44,16 @@ public class CustomControlTuple extends Tuple
   {
     super(MessageType.CUSTOM_CONTROL, 0);
     this.userObject = userObject;
+    uid = UUID.randomUUID();
   }
 
   public Object getUserObject()
   {
     return userObject;
+  }
+
+  public UUID getUid()
+  {
+    return uid;
   }
 }

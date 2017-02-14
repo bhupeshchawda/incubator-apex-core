@@ -67,6 +67,7 @@ import com.datatorrent.stram.api.Checkpoint;
 import com.datatorrent.stram.codec.DefaultStatefulStreamCodec;
 import com.datatorrent.stram.stream.BufferServerPublisher;
 import com.datatorrent.stram.stream.BufferServerSubscriber;
+import com.datatorrent.stram.tuple.CustomControlTuple;
 import com.datatorrent.stram.tuple.EndStreamTuple;
 import com.datatorrent.stram.tuple.EndWindowTuple;
 import com.datatorrent.stram.tuple.Tuple;
@@ -612,7 +613,7 @@ public class GenericNodeTest
   @Test
   public void testCustomControlTuplesOrder() throws InterruptedException
   {
-    long maxSleep = 5000;
+    long maxSleep = 5000000;
     long sleeptime = 25L;
     GenericOperator go = new GenericOperator();
     final GenericNode gn = new GenericNode(go, new com.datatorrent.stram.engine.OperatorContext(0, "operator",
@@ -655,13 +656,24 @@ public class GenericNodeTest
       Thread.sleep(sleeptime);
       interval += sleeptime;
     } while ((gn.controlTupleCount == controlTupleCount) && (interval < maxSleep));
+    controlTupleCount = gn.controlTupleCount;
 
-    reservoir1.add(new CustomControlTupleTest.TestControlTuple(1));
-    reservoir1.add(new CustomControlTupleTest.TestControlTuple(2));
-    reservoir1.add(new CustomControlTupleTest.TestControlTuple(3));
-    reservoir1.add(new CustomControlTupleTest.TestControlTuple(4));
+    CustomControlTuple t1 = new CustomControlTuple(new CustomControlTupleTest.TestControlTuple(1, false));
+    CustomControlTuple t2 = new CustomControlTuple(new CustomControlTupleTest.TestControlTuple(2, true));
+    CustomControlTuple t3 = new CustomControlTuple(new CustomControlTupleTest.TestControlTuple(3, false));
+    CustomControlTuple t4 = new CustomControlTuple(new CustomControlTupleTest.TestControlTuple(4, true));
+    reservoir1.add(t1);
+    reservoir1.add(t2);
+    reservoir1.add(t3);
+    reservoir1.add(t4);
 
-    Assert.assertTrue("Custom control tuples emitted immediately", testSink.getResultCount() == 1);
+    interval = 0;
+    do {
+      Thread.sleep(sleeptime);
+      interval += sleeptime;
+    } while ((gn.controlTupleCount == controlTupleCount) && (interval < maxSleep));
+
+    Assert.assertTrue("Custom control tuples emitted immediately", testSink.getResultCount() == 3);
 
     controlTupleCount = gn.controlTupleCount;
     Tuple endWindow = new Tuple(MessageType.END_WINDOW, 0x1L);
@@ -676,16 +688,15 @@ public class GenericNodeTest
     gn.shutdown();
     t.join();
 
-    Assert.assertTrue("Number of control tuples", testSink.getResultCount() == 6);
+    Assert.assertTrue("Total control tuples", testSink.getResultCount() == 6);
 
     long expected = 0;
     for (Object o: testSink.collectedTuples) {
-      if (o instanceof CustomControlTupleTest.TestControlTuple) {
+      if (o instanceof CustomControlTuple) {
         expected++;
-        Assert.assertTrue(((CustomControlTupleTest.TestControlTuple)o).data == expected);
       }
     }
-    Assert.assertTrue("Number of custom control tuples", expected == 4);
+    Assert.assertTrue("Number of Custom control tuples", expected == 4);
   }
 
   @Test

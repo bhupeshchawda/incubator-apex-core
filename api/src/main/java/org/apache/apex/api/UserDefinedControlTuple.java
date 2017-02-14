@@ -24,4 +24,12 @@ package org.apache.apex.api;
  */
 public interface UserDefinedControlTuple
 {
+  enum DeliveryType
+  {
+    IMMEDIATE,
+    END_WINDOW
+  }
+
+  DeliveryType getDeliveryType();
+
 }
