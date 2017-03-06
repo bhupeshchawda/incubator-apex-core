@@ -21,10 +21,10 @@ package org.apache.apex.api;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Any user generated control tuple must implement {@link UserDefinedControlTuple} interface
+ * Any user generated control tuple must implement {@link ControlTuple} interface
  */
 @InterfaceStability.Evolving
-public interface UserDefinedControlTuple
+public interface ControlTuple
 {
   /**
    * A user generated control tuple must specify a @{@link DeliveryType}
