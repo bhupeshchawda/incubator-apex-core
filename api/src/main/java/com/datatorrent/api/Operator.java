@@ -205,6 +205,10 @@ public interface Operator extends Component<OperatorContext>, GenericOperator
 
   }
 
+  static class DagShutdownException extends RuntimeException
+  {
+  }
+
   /**
    * Interface operator must implement if they want the the engine to inform them as
    * they are activated or before they are deactivated.

@@ -1537,6 +1537,9 @@ public class StreamingContainerManager implements PlanContext
 
     for (OperatorHeartbeat shb : heartbeat.getContainerStats().operators) {
 
+      if (shb.requestShutdown) {
+        shutdownAllContainers(ShutdownType.ABORT, "Shutdown requested by operator " + shb.getNodeId());
+      }
       long maxEndWindowTimestamp = 0;
 
       reportedOperators.add(shb.nodeId);

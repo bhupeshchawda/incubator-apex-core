@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Throwables;
 
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.api.Operator.ShutdownException;
@@ -203,6 +204,8 @@ public class InputNode extends Node<InputOperator>
     } catch (ShutdownException se) {
       logger.debug("Shutdown requested by the operator when alive = {}.", alive);
       alive = false;
+    } catch (Operator.DagShutdownException e) {
+      requestShutdown = true;
     } catch (Throwable cause) {
       synchronized (this) {
         if (alive) {

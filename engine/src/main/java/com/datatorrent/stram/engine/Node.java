@@ -74,6 +74,7 @@ import com.datatorrent.common.util.AsyncFSStorageAgent;
 import com.datatorrent.common.util.Pair;
 import com.datatorrent.stram.api.Checkpoint;
 import com.datatorrent.stram.api.OperatorDeployInfo;
+import com.datatorrent.stram.api.StreamingContainerUmbilicalProtocol;
 import com.datatorrent.stram.api.StreamingContainerUmbilicalProtocol.ContainerStats;
 import com.datatorrent.stram.debug.MuxSink;
 import com.datatorrent.stram.plan.logical.Operators;
@@ -134,6 +135,8 @@ public abstract class Node<OPERATOR extends Operator> implements Component<Opera
   protected Stats.CheckpointStats checkpointStats;
   public long firstWindowMillis;
   public long windowWidthMillis;
+  public boolean requestShutdown;
+  public StreamingContainerUmbilicalProtocol.ShutdownType type;
 
   public Node(OPERATOR operator, OperatorContext context)
   {

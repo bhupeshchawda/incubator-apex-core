@@ -657,6 +657,7 @@ public class StreamingContainer extends YarnContainerMain
         // gather heartbeat info for all operators
         for (Map.Entry<Integer, Node<?>> e : nodes.entrySet()) {
           OperatorHeartbeat hb = new OperatorHeartbeat();
+          hb.requestShutdown = e.getValue().requestShutdown;
           hb.setNodeId(e.getKey());
           hb.setGeneratedTms(currentTime);
           hb.setIntervalMs(heartbeatIntervalMillis);

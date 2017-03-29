@@ -262,6 +262,7 @@ public class GenericNode extends Node<Operator>
     try {
       do {
         Iterator<Map.Entry<String, SweepableReservoir>> buffers = activeQueues.iterator();
+        System.out.println("Inside loop");
       activequeue:
         while (buffers.hasNext()) {
           Map.Entry<String, SweepableReservoir> activePortEntry = buffers.next();
@@ -694,6 +695,9 @@ public class GenericNode extends Node<Operator>
     } catch (ShutdownException se) {
       logger.debug("Shutdown requested by the operator when alive = {}.", alive);
       alive = false;
+    } catch (Operator.DagShutdownException e) {
+      requestShutdown = true;
+      System.out.println("Caught DagShutdownException in GenericNode");
     } catch (Throwable cause) {
       synchronized (this) {
         if (alive) {

@@ -182,6 +182,8 @@ public interface StreamingContainerUmbilicalProtocol extends VersionedProtocol
       this.state = state;
     }
 
+    public boolean requestShutdown;
+    public ShutdownType type;
     /**
      * Return the response of the request
      */
